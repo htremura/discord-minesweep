@@ -18,6 +18,8 @@ for letter in range(len(boring)):
         jazzystring += ":EXCLMTN:"
     elif boring[letter] == ",":
         jazzystring += ",:__:"
+    elif boring[letter] == "'":
+        jazzystring += "'"
     else:
         jazzystring += ":" + boring[letter] + "_:"
 pyperclip.copy(jazzystring)
