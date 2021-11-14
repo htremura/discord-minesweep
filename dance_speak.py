@@ -1,5 +1,7 @@
 import pyperclip
+import string
 
+letterlist = string.ascii_uppercase
 jazzystring = ""
 
 boring = input("Gimme text to make dance!\n").upper()
@@ -16,10 +18,9 @@ for letter in range(len(boring)):
         jazzystring += ":DLLR:"
     elif boring[letter] == "!":
         jazzystring += ":EXCLMTN:"
-    elif boring[letter] == ",":
-        jazzystring += ",:__:"
-    elif boring[letter] == "'":
-        jazzystring += "'"
     else:
-        jazzystring += ":" + boring[letter] + "_:"
+        if boring[letter] in letterlist:
+            jazzystring += ":" + boring[letter] + "_:"
+        else:
+            jazzystring += boring[letter]
 pyperclip.copy(jazzystring)
