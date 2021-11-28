@@ -17,7 +17,7 @@ for letter in range(len(boring)):
     elif boring[letter] == "$":
         jazzystring += ":DLLR:"
     elif boring[letter] == "!":
-        jazzystring += ":EXCLMTN:"
+        jazzystring += ":BANG:"
     else:
         if boring[letter] in letterlist:
             jazzystring += ":" + boring[letter] + "_:"
