@@ -1,7 +1,7 @@
 import pyperclip
 import string
 
-letterlist = string.ascii_uppercase
+letterlist = string.ascii_uppercase + "1234567890"
 jazzystring = ""
 
 boring = input("Gimme text to make dance!\n").upper()
