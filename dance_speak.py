@@ -6,7 +6,9 @@ jazzystring = ""
 
 boring = input("Gimme text to make dance!\n").upper()
 for letter in range(len(boring)):
-    if boring[letter] == " ":
+    if boring[letter] in letterlist:
+        jazzystring += ":" + boring[letter] + "_:"
+    elif boring[letter] == " ":
         jazzystring += ":__:"
     elif boring[letter] == "?":
         jazzystring += ":QSTN:"
@@ -19,8 +21,5 @@ for letter in range(len(boring)):
     elif boring[letter] == "!":
         jazzystring += ":BANG:"
     else:
-        if boring[letter] in letterlist:
-            jazzystring += ":" + boring[letter] + "_:"
-        else:
-            jazzystring += boring[letter]
+        jazzystring += boring[letter]
 pyperclip.copy(jazzystring)
