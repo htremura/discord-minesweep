@@ -23,8 +23,3 @@ for letter in range(len(boring)):
         jazzystring += "\n"
 
 pyperclip.copy(jazzystring)
-	
-1	1	1	 	  
-1	💥	2	1	1	 
-1	2	3	💥	2	1
- 	1	💥	2	2	💥
