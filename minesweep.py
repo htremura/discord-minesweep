@@ -17,6 +17,8 @@ for letter in range(len(boring)):
         jazzystring += "||:five:||"
     elif boring[letter] == "	":
         jazzystring += "||:white_large_square:||"
+    elif boring[letter] == "💥":
+        jazzystring += "||:bomb:||"
     else:
         jazzystring += "\n"
 
