@@ -5,7 +5,7 @@ jazzystring = ""
 notdone = True
 
 while notdone:
-    boring = input("Gimme the first line to turn into a minesweeper for Discord!\n").upper()
+    boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
     for letter in range(len(boring)):
         if boring[letter] == "1":
             jazzystring += "||:one:||"
