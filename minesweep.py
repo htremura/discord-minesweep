@@ -10,7 +10,7 @@ while notdone:
         boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
     else:
         boring = input("\n").upper
-    if (boring[0] == "S") or (boring[0] == "N") or (boring[0] == "B"):
+    if (boring[0] == "B") or (boring[0] == "S"):
         jazzystring = jazzystring[:-1]
         break
     for letter in range(len(boring)):
