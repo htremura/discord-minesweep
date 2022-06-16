@@ -24,7 +24,7 @@ while notdone:
     jazzystring += "\n"
     print("We got: " + jazzystring)
     maybe = input("Are we done?\n").upper()
-    if (maybe == "Y") || (maybe == "YES"):
+    if (maybe == "Y") or (maybe == "YES"):
         notdone = False
 
 pyperclip.copy(jazzystring)
