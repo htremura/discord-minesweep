@@ -17,6 +17,14 @@ while notdone:
             jazzystring += "||:four:||"
         elif boring[letter] == "5":
             jazzystring += "||:five:||"
+        elif boring[letter] == "6":
+            jazzystring += "||:six:||"
+        elif boring[letter] == "7":
+            jazzystring += "||:seven:||"
+        elif boring[letter] == "8":
+            jazzystring += "||:eight:||"
+        elif boring[letter] == "9":
+            jazzystring += "||:nine:||"
         elif boring[letter] == " ":
             jazzystring += "||:white_large_square:||"
         elif boring[letter] == "💥":
