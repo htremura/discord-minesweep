@@ -7,6 +7,7 @@ notdone = True
 while notdone:
     boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
     if (boring[0] == "S") or (boring[0] == "N"):
+        jazzystring = jazzystring[:-2]
         break
     for letter in range(len(boring)):
         if boring[letter] == "1":
@@ -31,11 +32,6 @@ while notdone:
             jazzystring += "||:white_large_square:||"
         elif boring[letter] == "💥":
             jazzystring += "||:bomb:||"
-    jazzystring += "\n"
-#    print("We got: " + jazzystring)
-#    maybe = input("Are we done?\n").upper()
-#    if (maybe == "Y") or (maybe == "YES"):
-#        notdone = False
-#    else:
+        jazzystring += "\n"
 
 pyperclip.copy(jazzystring)
