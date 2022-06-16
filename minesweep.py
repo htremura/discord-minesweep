@@ -19,7 +19,7 @@ for letter in range(len(boring)):
         jazzystring += "||:white_large_square:||"
     elif boring[letter] == "💥":
         jazzystring += "||:bomb:||"
-    else:
+    elif boring[letter] == "\n":
         jazzystring += "\n"
 
 pyperclip.copy(jazzystring)
