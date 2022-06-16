@@ -32,6 +32,6 @@ while notdone:
             jazzystring += "||:white_large_square:||"
         elif boring[letter] == "💥":
             jazzystring += "||:bomb:||"
-        jazzystring += "\n"
+    jazzystring += "\n"
 
 pyperclip.copy(jazzystring)
