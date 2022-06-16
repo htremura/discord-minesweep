@@ -9,8 +9,8 @@ while notdone:
     if i==0:
         boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
     else:
-        boring = input("Type \"B\" to exit").upper
-    if (boring[0] == "B"):
+        boring = input().upper
+    if (boring[0] == "S") or (boring[0] == "N") or (boring[0] == "B"):
         jazzystring = jazzystring[:-1]
         break
     for letter in range(len(boring)):
@@ -37,7 +37,5 @@ while notdone:
         elif boring[letter] == "💥":
             jazzystring += "||:bomb:||"
     jazzystring += "\n"
-    i+=1
-
 
 pyperclip.copy(jazzystring)
