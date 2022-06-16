@@ -15,7 +15,7 @@ for letter in range(len(boring)):
         jazzystring += "||:four:||"
     elif boring[letter] == "5":
         jazzystring += "||:five:||"
-    elif boring[letter] == "	":
+    elif boring[letter] == " ":
         jazzystring += "||:white_large_square:||"
     elif boring[letter] == "💥":
         jazzystring += "||:bomb:||"
@@ -23,3 +23,8 @@ for letter in range(len(boring)):
         jazzystring += "\n"
 
 pyperclip.copy(jazzystring)
+	
+1	1	1	 	  
+1	💥	2	1	1	 
+1	2	3	💥	2	1
+ 	1	💥	2	2	💥
