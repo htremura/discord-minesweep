@@ -21,10 +21,11 @@ while notdone:
             jazzystring += "||:white_large_square:||"
         elif boring[letter] == "💥":
             jazzystring += "||:bomb:||"
-    jazzystring += "\n"
     print("We got: " + jazzystring)
     maybe = input("Are we done?\n").upper()
     if (maybe == "Y") or (maybe == "YES"):
         notdone = False
+    else:
+        jazzystring += "\n"
 
 pyperclip.copy(jazzystring)
