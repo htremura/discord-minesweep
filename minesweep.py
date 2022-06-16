@@ -9,7 +9,7 @@ while notdone:
     if i==0:
         boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
     else:
-        boring = input("Type \"B\" to exit").upper
+        boring = input("Type \"B\" to exit\n").upper
     if (boring[0] == "B"):
         jazzystring = jazzystring[:-1]
         break
