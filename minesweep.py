@@ -3,13 +3,9 @@ import string
 
 jazzystring = ""
 notdone = True
-i = 0
 
 while notdone:
-    if i==0:
-        boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
-    else:
-        boring = input().upper
+    boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
     if (boring[0] == "S") or (boring[0] == "N") or (boring[0] == "B"):
         jazzystring = jazzystring[:-1]
         break
