@@ -87,7 +87,7 @@ while notdone:
 
 while toolong:
     loopq = input("Are we done with the pasteloop? (y/n)").upper()
-    if loopq == "Y":
+    if (loopq == "Y") or (loopq == ""):
         toolong = False
 print("The letter count is: " + str(i))
 pyperclip.copy(jazzystring)
