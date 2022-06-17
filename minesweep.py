@@ -9,7 +9,7 @@ emotes = 0
 i = 0
 
 while notdone:
-    boring = input("Gimme a line to turn into a minesweeper for Discord!\n").upper()
+    boring = input("Gimme a line to turn into a minesweeper for Discord! (Enter an empty string, \"S\", \"N\", or \"B\" to exit)\n").upper()
     if (boring == "S") or (boring == "N") or (boring == "B") or (boring == ""):
         jazzystring = jazzystring[:-1]
         break
