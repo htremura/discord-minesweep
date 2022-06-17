@@ -3,6 +3,7 @@ import string
 
 jazzystring = ""
 notdone = True
+pasteloop = True
 i = 0
 
 while notdone:
@@ -83,5 +84,9 @@ while notdone:
         print("Too many characters!")
         break
 
+while pasteloop == True:
+    loopq = input("Are we done with the pasteloop?").upper()
+    if loopq == "Y":
+        pasteloop = False
 print("The letter count is: " + str(i))
 pyperclip.copy(jazzystring)
