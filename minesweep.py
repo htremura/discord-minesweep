@@ -86,7 +86,7 @@ while notdone:
         break
 
 while toolong:
-    loopq = input("Are we done with the pasteloop? (y/n)").upper()
+    loopq = input("THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n)").upper()
     if (loopq == "Y") or (loopq == ""):
         toolong = False
 print("The letter count is: " + str(i))
