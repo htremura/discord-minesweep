@@ -5,6 +5,7 @@ jazzystring = ""
 notdone = True
 pasteloop = True
 toolong = False
+emotes = 0
 i = 0
 
 while notdone:
@@ -79,15 +80,16 @@ while notdone:
                 break
             jazzystring += "||:bomb:||"
             i+=6+4
+        emotes+=1
     if not toolong:
         jazzystring += "\n"
     else:
-        print("Too many characters!")
+        print("\nToo many characters!\n")
         break
 
 while toolong:
-    loopq = input("THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n)").upper()
+    loopq = input("THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n):").upper()
     if (loopq == "Y") or (loopq == ""):
         toolong = False
-print("The letter count is: " + str(i))
+print("The letter count is: " + str(i) + "\nThe emote count is: " + str(emotes) + "\n")
 pyperclip.copy(jazzystring)
