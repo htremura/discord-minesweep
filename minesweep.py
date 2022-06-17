@@ -89,5 +89,5 @@ while notdone:
             i+=6+4
             jazzystring += "\n"
 
-print("The letter count is: " + i)
+print("The letter count is: " + str(i))
 pyperclip.copy(jazzystring)
