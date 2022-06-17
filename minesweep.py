@@ -19,68 +19,78 @@ while notdone:
                 toolong = True
                 break
             jazzystring += "||:one:||"
+            emotes+=1
             i+=6+3
         elif boring[letter] == "2":
             if (i+6+3>2000):
                 toolong = True
                 break
             jazzystring += "||:two:||"
+            emotes+=1
             i+=6+3
         elif boring[letter] == "3":
             if (i+6+5>2000):
                 toolong = True
                 break
             jazzystring += "||:three:||"
+            emotes+=1
             i+=6+5
         elif boring[letter] == "4":
             if (i+6+4>2000):
                 toolong = True
                 break
             jazzystring += "||:four:||"
+            emotes+=1
             i+=6+4
         elif boring[letter] == "5":
             if (i+6+4>2000):
                 toolong = True
                 break
             jazzystring += "||:five:||"
+            emotes+=1
             i+=6+4
         elif boring[letter] == "6":
             if (i+6+3>2000):
                 toolong = True
                 break
             jazzystring += "||:six:||"
+            emotes+=1
             i+=6+3
         elif boring[letter] == "7":
             if (i+6+5>2000):
                 toolong = True
                 break
             jazzystring += "||:seven:||"
+            emotes+=1
             i+=6+5
         elif boring[letter] == "8":
             if (i+6+5>2000):
                 toolong = True
                 break
             jazzystring += "||:eight:||"
+            emotes+=1
             i+=6+5
         elif boring[letter] == "9":
             if (i+6+4>2000):
                 toolong = True
                 break
             jazzystring += "||:nine:||"
+            emotes+=1
             i+=6+4
         elif boring[letter] == " ":
             if (i+6+18>2000):
                 toolong = True
                 break
             jazzystring += "||:white_large_square:||"
+            emotes+=1
             i+=6+18
         elif boring[letter] == "💥":
             if (i+6+4>2000):
                 toolong = True
                 break
             jazzystring += "||:bomb:||"
+            emotes+=1
             i+=6+4
-        emotes+=1
     if not toolong:
         jazzystring += "\n"
     else:
