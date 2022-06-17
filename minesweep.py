@@ -77,7 +77,7 @@ while notdone:
                 break
             jazzystring += "||:bomb:||"
             i+=6+4
-    if !(i>2000):
+    if not (i>2000):
         jazzystring += "\n"
     else:
         print("Too many characters!")
