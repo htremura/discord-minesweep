@@ -1,103 +1,119 @@
+import random
 import pyperclip
-import string
 
-jazzy_string = ""
-toolong = False
-emotes = 0
-i = 0
+def generate_board(rows, cols, mines):
+    board = [[0 for _ in range(cols)] for _ in range(rows)]
+    # Place mines
+    all_positions = [(r, c) for r in range(rows) for c in range(cols)]
+    mine_positions = random.sample(all_positions, mines)
+    for r, c in mine_positions:
+        board[r][c] = '💥'
+        # Increment adjacent cells
+        for i in range(max(0, r-1), min(rows, r+2)):
+            for j in range(max(0, c-1), min(cols, c+2)):
+                if board[i][j] != '💥':
+                    board[i][j] += 1
+    return board
 
-while True:
-    boring = input("Gimme a line to turn into a minesweeper for Discord! (Enter an empty string, \"S\", \"N\", or \"B\" to exit)\n").upper()
-    if (boring == "S") or (boring == "N") or (boring == "B") or (boring == ""):
-        jazzy_string = jazzy_string[:-1]
-        break
-    for letter in range(len(boring)):
-        if boring[letter] == "1":
-            if (i+6+3>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:one:||"
-            emotes+=1
-            i+=6+3
-        elif boring[letter] == "2":
-            if (i+6+3>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:two:||"
-            emotes+=1
-            i+=6+3
-        elif boring[letter] == "3":
-            if (i+6+5>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:three:||"
-            emotes+=1
-            i+=6+5
-        elif boring[letter] == "4":
-            if (i+6+4>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:four:||"
-            emotes+=1
-            i+=6+4
-        elif boring[letter] == "5":
-            if (i+6+4>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:five:||"
-            emotes+=1
-            i+=6+4
-        elif boring[letter] == "6":
-            if (i+6+3>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:six:||"
-            emotes+=1
-            i+=6+3
-        elif boring[letter] == "7":
-            if (i+6+5>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:seven:||"
-            emotes+=1
-            i+=6+5
-        elif boring[letter] == "8":
-            if (i+6+5>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:eight:||"
-            emotes+=1
-            i+=6+5
-        elif boring[letter] == "9":
-            if (i+6+4>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:nine:||"
-            emotes+=1
-            i+=6+4
-        elif boring[letter] == " ":
-            if (i+6+18>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:white_large_square:||"
-            emotes+=1
-            i+=6+18
-        elif boring[letter] == "💥":
-            if (i+6+4>2000) or (emotes>=99):
-                toolong = True
-                break
-            jazzy_string += "||:bomb:||"
-            emotes+=1
-            i+=6+4
-    if not toolong:
-        jazzy_string += "\n"
-    else:
-        print("\nToo many characters!\n")
-        break
+def print_board(board):
+    for row in board:
+        print(' '.join(str(cell) if cell != 0 else ' ' for cell in row))
 
-while toolong:
-    loopq = input("THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n):").upper()
-    if (loopq == "Y") or (loopq == ""):
-        toolong = False
-print("The letter count is: " + str(i) + "\nThe emote count is: " + str(emotes) + "\n")
-pyperclip.copy(jazzy_string)
+def convert_to_discord(board):
+    jazzy_string = ""
+    toolong = False
+    emotes = 0
+    i = 0
+    emote_map = {
+        1: ":one:", 2: ":two:", 3: ":three:", 4: ":four:",
+        5: ":five:", 6: ":six:", 7: ":seven:", 8: ":eight:",
+        9: ":nine:", ' ': ":white_large_square:", '💥': ":bomb:"
+    }
+
+    for row in board:
+        for cell in row:
+            emote = emote_map.get(cell, ":white_large_square:")
+            cell_length = len(emote)
+            if (i + 6 + cell_length > 2000) or (emotes >= 99):
+                toolong = True
+                break
+            jazzy_string += f"||{emote}||"
+            emotes += 1
+            i += 6 + cell_length
+        if not toolong:
+            jazzy_string += "\n"
+        else:
+            print("\nToo many characters!\n")
+            break
+
+    if toolong:
+        while True:
+            loopq = input("THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n): ").upper()
+            if loopq in ("Y", ""):
+                break
+
+    print(f"The letter count is: {i}\nThe emote count is: {emotes}\n")
+    pyperclip.copy(jazzy_string)
+    print("\nDiscord format copied to clipboard!\n")
+
+# Main script
+choice = input("Do you want to generate a Minesweeper board? (y/n): ").strip().lower()
+
+if choice == 'y':
+    try:
+        rows = int(input("Rows: "))
+        cols = int(input("Columns: "))
+        mines = int(input("Number of mines: "))
+        board = generate_board(rows, cols, mines)
+        print("\nGenerated Minesweeper Board:")
+        print_board(board)
+
+        discord_choice = input("\nConvert to Discord format? (y/n): ").strip().lower()
+        if discord_choice == 'y':
+            convert_to_discord(board)
+    except Exception as e:
+        print("Error:", e)
+else:
+    # Manual input mode (your original logic slightly cleaned up)
+    jazzy_string = ""
+    toolong = False
+    emotes = 0
+    i = 0
+    print("Enter each line of the board using 1-8, space for empty, or 💥 for mine:")
+    while True:
+        line = input("(Enter an empty line to finish): ").upper()
+        if line in ("", "S", "N", "B"):
+            jazzy_string = jazzy_string.rstrip()
+            break
+        for char in line:
+            if char in "123456789":
+                emote = f":{['zero','one','two','three','four','five','six','seven','eight','nine'][int(char)]}:"
+            elif char == " ":
+                emote = ":white_large_square:"
+            elif char == "💥":
+                emote = ":bomb:"
+            else:
+                continue
+
+            length = len(emote)
+            if (i + 6 + length > 2000) or (emotes >= 99):
+                toolong = True
+                break
+            jazzy_string += f"||{emote}||"
+            emotes += 1
+            i += 6 + length
+        if not toolong:
+            jazzy_string += "\n"
+        else:
+            print("\nToo many characters!\n")
+            break
+
+    if toolong:
+        while True:
+            loopq = input("THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n): ").upper()
+            if loopq in ("Y", ""):
+                break
+
+    print(f"The letter count is: {i}\nThe emote count is: {emotes}\n")
+    pyperclip.copy(jazzy_string)
+    print("\nDiscord format copied to clipboard!\n")
