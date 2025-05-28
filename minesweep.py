@@ -59,7 +59,8 @@ def convert_to_discord(board):
 # Main script
 choice = input("Do you want to generate a Minesweeper board? (y/n): ").strip().lower()
 
-if choice == 'y':
+if choice == 'y' or choice == '':
+    # Generate board mode
     try:
         rows = int(input("Rows: "))
         cols = int(input("Columns: "))
@@ -67,14 +68,11 @@ if choice == 'y':
         board = generate_board(rows, cols, mines)
         print("\nGenerated Minesweeper Board:")
         print_board(board)
-
-        discord_choice = input("\nConvert to Discord format? (y/n): ").strip().lower()
-        if discord_choice == 'y':
-            convert_to_discord(board)
+        convert_to_discord(board)
     except Exception as e:
         print("Error:", e)
 else:
-    # Manual input mode (your original logic slightly cleaned up)
+    # Manual input mode
     jazzy_string = ""
     toolong = False
     emotes = 0
