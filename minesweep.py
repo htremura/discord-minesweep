@@ -59,9 +59,9 @@ def generate_random_mine_positions(rows, cols, mine_count):
     all_positions = [(r, c) for r in range(rows) for c in range(cols)]
     return random.sample(all_positions, mine_count)
 
-def print_board(board):
+def print_minefield(board):
     for row in board:
-        print(' '.join(str(cell) if cell != 0 else ' ' for cell in row))
+        print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
 
 def convert_to_discord(board):
     rows = len(board)
@@ -195,15 +195,18 @@ elif script_generated in ("n", "no"):
         
     except Exception as e:
         print("Error parsing MBF:", e)
+
 else:
     print('Invalid choice. Please enter "y" or "n".')
     exit(1)
 
-print_board(minefield)
+print_minefield(minefield)
 print(f'\n{minefield_to_rbf_hex(minefield)}\n')
 
-discord_minesweeper = input("Do you want to convert this to a discord spoilered board? (y/n): ").strip().lower()
-if discord_minesweeper in ("y", "yes"):
+print("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)")
+output_choice = input("> ").strip().lower()
+
+if output_choice in ("d", "discord"):
     status, msg, chars, emotes = convert_to_discord(minefield)
     
     print(f"\nLength {chars}, Emotes {emotes}")
@@ -239,7 +242,7 @@ if discord_minesweeper in ("y", "yes"):
         except Exception:
             print('\nCould not copy to clipboard. Please copy manually.\n')
     else:
-        print("Discord message not generated due to length/emote constraints.")
-    
+        print("Discord message not copied due to length/emote constraints.")
+
 else:
     print("OK!")
