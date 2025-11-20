@@ -20,36 +20,39 @@ def print_board(board):
         print(' '.join(str(cell) if cell != 0 else ' ' for cell in row))
 
 def convert_to_discord(board):
-    jazzy_string = ''
-    toolong = False
-    emotes = 0
-    i = 0
+    rows = len(board)
+    cols = len(board[0])
+    total_cells = rows * cols
+    discord_string = ''
+    total_chars = 0
+
+    if total_cells > 99:
+        return ("too_many_emotes", discord_string, total_chars, total_cells)
+
     emote_map = {
         1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:',
         5: ':five:', 6: ':six:', 7: ':seven:', 8: ':eight:',
         9: ':nine:', ' ': ':white_large_square:', 'B': ':bomb:'
     }
-
+    
+    # Build the jazzy string
     for row in board:
         for cell in row:
             emote = emote_map.get(cell, ':white_large_square:')
-            cell_length = len(emote)
-            if (i + 6 + cell_length > 2000) or (emotes >= 99):
-                toolong = True
-                break
-            jazzy_string += f'||{emote}||'
-            emotes += 1
-            i += 6 + cell_length
-        if not toolong:
-            jazzy_string += '\n'
-        else:
-            if (i + 6 + cell_length > 2000):
-                print('\nToo many characters!\n')
-            else:
-                print('\nToo many emotes!\n')
-            break
-    print(f'The letter count is: {i}\nThe emote count is: {emotes}\n')
-    return jazzy_string
+            part = f'||{emote}||'
+            discord_string += part
+            total_chars += len(part)
+        discord_string += '\n'
+        total_chars += 1
+    
+    # Length classification
+    if total_chars <= 2000:
+        return ("ok", discord_string, total_chars, total_cells)
+
+    if total_chars <= 4000:
+        return ("nitro_required", discord_string, total_chars, total_cells)
+
+    return ("too_long", total_chars)
 
 def parse_mbf_hex(hex_string):
     # remove spaces/newlines
@@ -112,9 +115,9 @@ def board_to_mbf_hex(board):
 
 
 # Main script
-choice = input('Do you want to generate a Minesweeper board? (y/n): ').strip().lower()
+script_generated = input('Do you want this script to generate a Minesweeper board? (y/n): ').strip().lower()
 
-if choice == 'y' or choice == '':
+if script_generated in ("y", "yes"):
     # Generate board mode
     try:
         rows = int(input('Rows: '))
@@ -126,14 +129,17 @@ if choice == 'y' or choice == '':
         mines = int(input('Number of mines: '))
         if mines < 1 or mines >= rows * cols:
             raise ValueError('Number of mines must be at least 1 and less than total cells.')
+        
         board = generate_board(rows, cols, mines)
+
         print('\nGenerated Minesweeper Board:')
-        print_board(board)
-        print(f'\n{board_to_mbf_hex(board)}\n')
+
     except Exception as e:
         print('Error:', e)
-else:
-    print('Please use a service like https://www.mzrg.com/js/mine/make_board.html or input your own board manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))')
+
+elif script_generated in ("n", "no"):
+    # Parse manual MBF mode
+    print('Please input your own board manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\n You can use a service like https://www.mzrg.com/js/mine/make_board.html')
     hex_string = input("> ").strip()
     try:
         width, height, mine_positions = parse_mbf_hex(hex_string)
@@ -141,14 +147,51 @@ else:
         
         board = generate_board(height, width, len(mine_positions), mine_positions)
         print("\nParsed Board:")
-        print_board(board)
         
     except Exception as e:
         print("Error parsing MBF:", e)
-    print(f'The letter count is: {i}\nThe emote count is: {emotes}\n')
+else:
+    print('Invalid choice. Please enter "y" or "n".')
+    exit(1)
 
-try:
-    pyperclip.copy(convert_to_discord(board))
-    print('\nDiscord format copied to clipboard!\n')
-except Exception:
-    print('\nCould not copy to clipboard. Please copy manually.\n')
+print_board(board)
+print(f'\n{board_to_mbf_hex(board)}\n')
+
+discord_minesweeper = input("Do you want to convert this to a discord spoilered board? (y/n): ").strip().lower()
+if discord_minesweeper in ("y", "yes"):
+    status, msg, chars, emotes = convert_to_discord(board)
+    
+    print(f"Length {chars}, Emotes {emotes}")
+    
+    if status == "ok":
+        print("You can send this on Discord without Nitro.")
+
+    elif status == "nitro_required":
+        print(f"Message requires Nitro (length {chars}, emotes {emotes}).")
+        nitro = input("Do you have Nitro? (y/n): ").strip().lower()
+        if nitro in ("y", "yes"):
+            print("You can send this on Discord only because you have Nitro.")
+        else:
+            print(f"You cannot send this without Nitro.")
+
+    elif status == "too_many_emotes":
+        print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
+
+    elif status == "too_long":
+        print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
+
+    else:
+        print("Unknown status.")
+    
+    if status in ("ok", "nitro_required"):
+        try:
+            pyperclip.copy(msg)
+            print('\nDiscord format copied to clipboard!\n')
+        except Exception:
+            print('\nCould not copy to clipboard. Please copy manually.\n')
+    else:
+        print("Discord message not generated due to length/emote constraints.")
+    
+else:
+    print("Ok!")
+    
