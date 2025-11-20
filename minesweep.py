@@ -49,13 +49,67 @@ def convert_to_discord(board):
                 print('\nToo many emotes!\n')
             break
     print(f'The letter count is: {i}\nThe emote count is: {emotes}\n')
-    try:
-        pyperclip.copy(jazzy_string)
-        print('\nDiscord format copied to clipboard!\n')
-    except Exception:
-        print('\nCould not copy to clipboard. Please copy manually.\n')
+    return jazzy_string
 
-    print('\nDiscord format copied to clipboard!\n')
+def parse_mbf_hex(hex_string):
+    # remove spaces/newlines
+    cleaned = hex_string.replace(' ', '').replace('\n', '')
+    
+    if len(cleaned) < 8:
+        raise ValueError('Hex string too short to contain MBF header.')
+
+    data = bytes.fromhex(cleaned)
+
+    width  = data[0]
+    height = data[1]
+    mines  = (data[2] << 8) | data[3]
+
+    expected_len = 4 + mines * 2
+    if len(data) != expected_len:
+        raise ValueError(f'Expected {expected_len} bytes for {mines} mines, got {len(data)}.')
+
+    mine_positions = []
+    idx = 4
+    for _ in range(mines):
+        x = data[idx]
+        y = data[idx + 1]
+        idx += 2
+        # x=column, y=row
+        mine_positions.append((y, x))
+
+    return width, height, mine_positions
+
+def board_to_mbf_hex(board):
+    height = len(board)
+    width = len(board[0])
+
+    # Locate mines
+    mine_positions = []
+    for r in range(height):
+        for c in range(width):
+            if board[r][c] == 'B':
+                mine_positions.append((c, r))   # X, Y
+
+    mines = len(mine_positions)
+
+    # MBF format:
+    # WIDTH (1 byte)
+    # HEIGHT (1 byte)
+    # MINES (2 bytes, big endian)
+    # MINE POSITIONS: X Y (each 1 byte)
+    output = bytearray()
+    output.append(width)
+    output.append(height)
+    output.append((mines >> 8) & 0xFF)          # high byte
+    output.append(mines & 0xFF)                 # low byte
+
+    for x, y in mine_positions:
+        output.append(x)
+        output.append(y)
+
+    # Convert to spaced hex string for readability
+    return " ".join(f"{b:02X}" for b in output)
+
 
 # Main script
 choice = input('Do you want to generate a Minesweeper board? (y/n): ').strip().lower()
@@ -75,53 +129,26 @@ if choice == 'y' or choice == '':
         board = generate_board(rows, cols, mines)
         print('\nGenerated Minesweeper Board:')
         print_board(board)
-        convert_to_discord(board)
+        print(f'\n{board_to_mbf_hex(board)}\n')
     except Exception as e:
         print('Error:', e)
 else:
-    # Manual input mode
-    jazzy_string = ''
-    toolong = False
-    emotes = 0
-    i = 0
-    print('Enter each line of the board using 1-8, space for empty, or B for mine:')
-    while True:
-        line = input('(Enter an empty line to finish): ').upper()
-        if line in ('', 'S', 'N', 'B'):
-            jazzy_string = jazzy_string.rstrip()
-            break
-        for char in line:
-            if char in '123456789':
-                emote = f":{['zero','one','two','three','four','five','six','seven','eight','nine'][int(char)]}:"
-            elif char == ' ':
-                emote = ':white_large_square:'
-            elif char == 'B':
-                emote = ':bomb:'
-            else:
-                continue
-
-            length = len(emote)
-            if (i + 6 + length > 2000) or (emotes >= 99):
-                toolong = True
-                break
-            jazzy_string += f'||{emote}||'
-            emotes += 1
-            i += 6 + length
-        if not toolong:
-            jazzy_string += '\n'
-        else:
-            print('\nToo many characters!\n')
-            break
-    if toolong:
-        while True:
-            loopq = input('THIS IS AN ERROR CATCHING LOOP. Are we done pasting? (y/n): ').upper()
-            if loopq in ('Y', ''):
-                break
-
-    print(f'The letter count is: {i}\nThe emote count is: {emotes}\n')
+    print('Please use a service like https://www.mzrg.com/js/mine/make_board.html or input your own board manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))')
+    hex_string = input("> ").strip()
     try:
-        pyperclip.copy(jazzy_string)
-        print('\nDiscord format copied to clipboard!\n')
-    except Exception:
-        print('\nCould not copy to clipboard. Please copy manually.\n')
+        width, height, mine_positions = parse_mbf_hex(hex_string)
+        print(f"Width: {width}, Height: {height}, Mines: {len(mine_positions)}")
+        
+        board = generate_board(height, width, len(mine_positions), mine_positions)
+        print("\nParsed Board:")
+        print_board(board)
+        
+    except Exception as e:
+        print("Error parsing MBF:", e)
+    print(f'The letter count is: {i}\nThe emote count is: {emotes}\n')
+
+try:
+    pyperclip.copy(convert_to_discord(board))
     print('\nDiscord format copied to clipboard!\n')
+except Exception:
+    print('\nCould not copy to clipboard. Please copy manually.\n')
