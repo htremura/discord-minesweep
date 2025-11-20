@@ -156,17 +156,17 @@ script_generated = input('Do you want this script to generate a Minesweeper boar
 if script_generated in ("y", "yes"):
     # Generate board mode
     try:
-        rows = int(input('Rows: '))
-        if rows < 1:
-            raise ValueError('Rows must be at least 1.')
-        cols = int(input('Columns: '))
+        cols = int(input('Width / Columns: '))
         if cols < 1:
             raise ValueError('Columns must be at least 1.')
+        rows = int(input('Height / Rows: '))
+        if rows < 1:
+            raise ValueError('Rows must be at least 1.')
         mines = int(input('Number of mines: '))
         if mines < 1 or mines >= rows * cols:
             raise ValueError('Number of mines must be at least 1 and less than total cells.')
         
-        board = generate_board((rows, cols, mines))
+        board = generate_board((cols, rows, mines))
 
         print('\nGenerated Minesweeper Board:\n')
 
@@ -212,9 +212,13 @@ if discord_minesweeper in ("y", "yes"):
 
     elif status == "too_many_emotes":
         print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
+        if chars > 4000:
+            print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
 
     elif status == "too_long":
         print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
+        if emotes > 99:
+            print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
 
     else:
         print("Unknown status.")
@@ -230,4 +234,3 @@ if discord_minesweeper in ("y", "yes"):
     
 else:
     print("OK!")
-    
