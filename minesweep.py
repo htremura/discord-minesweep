@@ -1,21 +1,7 @@
 import random
 import pyperclip
 
-def generate_board(rows, cols, mines):
-    board = [[0 for _ in range(cols)] for _ in range(rows)]
-    # Place mines
-    all_positions = [(r, c) for r in range(rows) for c in range(cols)]
-    mine_positions = random.sample(all_positions, mines)
-    for r, c in mine_positions:
-        board[r][c] = 'B'
-        # Increment adjacent cells
-        for i in range(max(0, r-1), min(rows, r+2)):
-            for j in range(max(0, c-1), min(cols, c+2)):
-                if board[i][j] != 'B':
-                    board[i][j] += 1
-    return board
-
-def recreate_board(mbf_hex_or_data):
+def generate_board(mbf_hex_or_data):
     """
     Recreate a Minesweeper board from MBF hex or pre-parsed data.
 
@@ -29,26 +15,39 @@ def recreate_board(mbf_hex_or_data):
     """
     # If input is a string, parse it
     if isinstance(mbf_hex_or_data, str):
+        isgenerated = False
         width, height, mine_positions = parse_mbf_hex(mbf_hex_or_data)
     elif isinstance(mbf_hex_or_data, tuple) and len(mbf_hex_or_data) == 3:
+        isgenerated = True
         width, height, mine_positions = mbf_hex_or_data
     else:
         raise ValueError("Input must be MBF hex string or (width, height, mine_positions) tuple.")
 
     # Initialize empty board
     board = [[0 for _ in range(width)] for _ in range(height)]
-
+    
     # Place mines
-    for r, c in mine_positions:
-        board[r][c] = 'B'
-        # Increment adjacent cells
-        for i in range(max(0, r-1), min(height, r+2)):
-            for j in range(max(0, c-1), min(width, c+2)):
-                if board[i][j] != 'B':
-                    board[i][j] += 1
-
+    if not isgenerated:
+        # Selected Mine Positions
+        for r, c in mine_positions:
+            board[r][c] = 'B'
+            # Increment adjacent cells
+            for i in range(max(0, r-1), min(height, r+2)):
+                for j in range(max(0, c-1), min(width, c+2)):
+                    if board[i][j] != 'B':
+                        board[i][j] += 1
+    else:
+        # Randomly select unique mine positions
+        all_positions = [(r, c) for r in range(height) for c in range(width)]
+        mine_positions = random.sample(all_positions, mines)
+        for r, c in mine_positions:
+            board[r][c] = 'B'
+            # Increment adjacent cells
+            for i in range(max(0, r-1), min(height, r+2)):
+                for j in range(max(0, c-1), min(width, c+2)):
+                    if board[i][j] != 'B':
+                        board[i][j] += 1
     return board
-
 
 def print_board(board):
     for row in board:
@@ -167,7 +166,7 @@ if script_generated in ("y", "yes"):
         if mines < 1 or mines >= rows * cols:
             raise ValueError('Number of mines must be at least 1 and less than total cells.')
         
-        board = generate_board(rows, cols, mines)
+        board = generate_board((rows, cols, mines))
 
         print('\nGenerated Minesweeper Board:\n')
 
@@ -182,7 +181,7 @@ elif script_generated in ("n", "no"):
         width, height, mines = parse_mbf_hex(hex_string)
         print(f"Width: {width}, Height: {height}, Mines: {len(mines)}")
         
-        board = recreate_board((width, height, mines))
+        board = generate_board(hex_string)
         print("\nParsed Minesweeper Board:\n")
         
     except Exception as e:
