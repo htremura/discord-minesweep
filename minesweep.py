@@ -1,53 +1,63 @@
 import random
 import pyperclip
 
-def generate_board(mbf_hex_or_data):
+def generate_minefield_from_mine_positions(rows, cols, mine_positions):
     """
-    Recreate a Minesweeper board from MBF hex or pre-parsed data.
+    Generate a Minesweeper minefield from explicit mine coordinates.
 
     Parameters:
-        mbf_hex_or_data: str or tuple
-            - str: MBF hexadecimal string
-            - tuple: (width, height, mine_positions) as returned by parse_mbf_hex
+        rows (int): Number of rows
+        cols (int): Number of columns
+        mine_positions (list of (row, col)): Mine coordinates
 
     Returns:
-        board: 2D list (rows x columns) with numbers and 'B' for bombs
+        minefield (2D list): Numbers and 'B' where bombs are located
     """
-    # If input is a string, parse it
-    if isinstance(mbf_hex_or_data, str):
-        isgenerated = False
-        width, height, mine_positions = parse_mbf_hex(mbf_hex_or_data)
-    elif isinstance(mbf_hex_or_data, tuple) and len(mbf_hex_or_data) == 3:
-        isgenerated = True
-        width, height, mine_positions = mbf_hex_or_data
-    else:
-        raise ValueError("Input must be MBF hex string or (width, height, mine_positions) tuple.")
 
     # Initialize empty board
-    board = [[0 for _ in range(width)] for _ in range(height)]
-    
+    minefield = [[0 for _ in range(cols)] for _ in range(rows)]
+
     # Place mines
-    if not isgenerated:
-        # Selected Mine Positions
-        for r, c in mine_positions:
-            board[r][c] = 'B'
-            # Increment adjacent cells
-            for i in range(max(0, r-1), min(height, r+2)):
-                for j in range(max(0, c-1), min(width, c+2)):
-                    if board[i][j] != 'B':
-                        board[i][j] += 1
-    else:
-        # Randomly select unique mine positions
-        all_positions = [(r, c) for r in range(height) for c in range(width)]
-        mine_positions = random.sample(all_positions, mines)
-        for r, c in mine_positions:
-            board[r][c] = 'B'
-            # Increment adjacent cells
-            for i in range(max(0, r-1), min(height, r+2)):
-                for j in range(max(0, c-1), min(width, c+2)):
-                    if board[i][j] != 'B':
-                        board[i][j] += 1
-    return board
+    for r, c in mine_positions:
+        minefield[r][c] = 'B'
+
+        # Increment adjacent cells
+        for i in range(max(0, r-1), min(rows, r+2)):
+            for j in range(max(0, c-1), min(cols, c+2)):
+                if minefield[i][j] != 'B':
+                    minefield[i][j] += 1
+
+    return minefield
+
+def generate_minefield_from_mbf_hex(mbf_hex):
+    """
+    Generate a Minesweeper minefield from provided mbf hex string.
+
+    Parameters:
+        mbf_hex (string): mbf hexadecimal string
+
+    Returns:
+        minefield (2D list): Numbers and 'B' where bombs are located
+    """
+
+    width, height, mine_positions = parse_mbf_hex(mbf_hex)
+    return generate_minefield_from_mine_positions(height, width, mine_positions)
+
+def generate_random_mine_positions(rows, cols, mine_count):
+    """
+    Generate random unique mine positions.
+
+    Parameters:
+        rows (int): Number of rows
+        cols (int): Number of columns
+        mine_count (int): Number of mines
+
+    Returns:
+        mine_positions (list of (row, col)): Random mine coordinates
+    """
+
+    all_positions = [(r, c) for r in range(rows) for c in range(cols)]
+    return random.sample(all_positions, mine_count)
 
 def print_board(board):
     for row in board:
@@ -154,7 +164,7 @@ def minefield_to_rbf_hex(board):
 script_generated = input('Do you want this script to generate a Minesweeper board? (y/n): ').strip().lower()
 
 if script_generated in ("y", "yes"):
-    # Generate board mode
+    # Generate minefield mode
     try:
         cols = int(input('Width / Columns: '))
         if cols < 1:
@@ -162,11 +172,10 @@ if script_generated in ("y", "yes"):
         rows = int(input('Height / Rows: '))
         if rows < 1:
             raise ValueError('Rows must be at least 1.')
-        mines = int(input('Number of mines: '))
-        if mines < 1 or mines >= rows * cols:
+        minecount = int(input('Number of mines: '))
+        if minecount < 1 or minecount >= rows * cols:
             raise ValueError('Number of mines must be at least 1 and less than total cells.')
-        
-        board = generate_board((cols, rows, mines))
+        minefield = generate_minefield_from_mine_positions(cols, rows, generate_random_mine_positions(rows, cols, minecount))
 
         print('\nGenerated Minesweeper Board:\n')
 
@@ -181,7 +190,7 @@ elif script_generated in ("n", "no"):
         width, height, mines = parse_mbf_hex(hex_string)
         print(f"Width: {width}, Height: {height}, Mines: {len(mines)}")
         
-        board = generate_board(hex_string)
+        minefield = generate_minefield_from_mbf_hex(hex_string)
         print("\nParsed Minesweeper Board:\n")
         
     except Exception as e:
@@ -190,12 +199,12 @@ else:
     print('Invalid choice. Please enter "y" or "n".')
     exit(1)
 
-print_board(board)
-print(f'\n{minefield_to_rbf_hex(board)}\n')
+print_board(minefield)
+print(f'\n{minefield_to_rbf_hex(minefield)}\n')
 
 discord_minesweeper = input("Do you want to convert this to a discord spoilered board? (y/n): ").strip().lower()
 if discord_minesweeper in ("y", "yes"):
-    status, msg, chars, emotes = convert_to_discord(board)
+    status, msg, chars, emotes = convert_to_discord(minefield)
     
     print(f"\nLength {chars}, Emotes {emotes}")
     
