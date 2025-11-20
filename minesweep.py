@@ -15,6 +15,41 @@ def generate_board(rows, cols, mines):
                     board[i][j] += 1
     return board
 
+def recreate_board(mbf_hex_or_data):
+    """
+    Recreate a Minesweeper board from MBF hex or pre-parsed data.
+
+    Parameters:
+        mbf_hex_or_data: str or tuple
+            - str: MBF hexadecimal string
+            - tuple: (width, height, mine_positions) as returned by parse_mbf_hex
+
+    Returns:
+        board: 2D list (rows x columns) with numbers and 'B' for bombs
+    """
+    # If input is a string, parse it
+    if isinstance(mbf_hex_or_data, str):
+        width, height, mine_positions = parse_mbf_hex(mbf_hex_or_data)
+    elif isinstance(mbf_hex_or_data, tuple) and len(mbf_hex_or_data) == 3:
+        width, height, mine_positions = mbf_hex_or_data
+    else:
+        raise ValueError("Input must be MBF hex string or (width, height, mine_positions) tuple.")
+
+    # Initialize empty board
+    board = [[0 for _ in range(width)] for _ in range(height)]
+
+    # Place mines
+    for r, c in mine_positions:
+        board[r][c] = 'B'
+        # Increment adjacent cells
+        for i in range(max(0, r-1), min(height, r+2)):
+            for j in range(max(0, c-1), min(width, c+2)):
+                if board[i][j] != 'B':
+                    board[i][j] += 1
+
+    return board
+
+
 def print_board(board):
     for row in board:
         print(' '.join(str(cell) if cell != 0 else ' ' for cell in row))
@@ -26,13 +61,10 @@ def convert_to_discord(board):
     discord_string = ''
     total_chars = 0
 
-    if total_cells > 99:
-        return ("too_many_emotes", discord_string, total_chars, total_cells)
-
     emote_map = {
         1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:',
         5: ':five:', 6: ':six:', 7: ':seven:', 8: ':eight:',
-        9: ':nine:', ' ': ':white_large_square:', 'B': ':bomb:'
+        ' ': ':white_large_square:', 'B': ':bomb:'
     }
     
     # Build the jazzy string
@@ -46,6 +78,10 @@ def convert_to_discord(board):
         total_chars += 1
     
     # Length classification
+
+    if total_cells > 99:
+        return ("too_many_emotes", discord_string, total_chars, total_cells)
+    
     if total_chars <= 2000:
         return ("ok", discord_string, total_chars, total_cells)
 
@@ -115,6 +151,7 @@ def board_to_mbf_hex(board):
 
 
 # Main script
+
 script_generated = input('Do you want this script to generate a Minesweeper board? (y/n): ').strip().lower()
 
 if script_generated in ("y", "yes"):
@@ -132,21 +169,21 @@ if script_generated in ("y", "yes"):
         
         board = generate_board(rows, cols, mines)
 
-        print('\nGenerated Minesweeper Board:')
+        print('\nGenerated Minesweeper Board:\n')
 
     except Exception as e:
         print('Error:', e)
 
 elif script_generated in ("n", "no"):
     # Parse manual MBF mode
-    print('Please input your own board manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\n You can use a service like https://www.mzrg.com/js/mine/make_board.html')
+    print('Please input your own board manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html')
     hex_string = input("> ").strip()
     try:
-        width, height, mine_positions = parse_mbf_hex(hex_string)
-        print(f"Width: {width}, Height: {height}, Mines: {len(mine_positions)}")
+        width, height, mines = parse_mbf_hex(hex_string)
+        print(f"Width: {width}, Height: {height}, Mines: {len(mines)}")
         
-        board = generate_board(height, width, len(mine_positions), mine_positions)
-        print("\nParsed Board:")
+        board = recreate_board((width, height, mines))
+        print("\nParsed Minesweeper Board:\n")
         
     except Exception as e:
         print("Error parsing MBF:", e)
@@ -161,13 +198,13 @@ discord_minesweeper = input("Do you want to convert this to a discord spoilered 
 if discord_minesweeper in ("y", "yes"):
     status, msg, chars, emotes = convert_to_discord(board)
     
-    print(f"Length {chars}, Emotes {emotes}")
+    print(f"\nLength {chars}, Emotes {emotes}")
     
     if status == "ok":
         print("You can send this on Discord without Nitro.")
 
     elif status == "nitro_required":
-        print(f"Message requires Nitro (length {chars}, emotes {emotes}).")
+        print(f"Message requires Nitro ({chars} > 2000).")
         nitro = input("Do you have Nitro? (y/n): ").strip().lower()
         if nitro in ("y", "yes"):
             print("You can send this on Discord only because you have Nitro.")
@@ -193,5 +230,5 @@ if discord_minesweeper in ("y", "yes"):
         print("Discord message not generated due to length/emote constraints.")
     
 else:
-    print("Ok!")
+    print("OK!")
     
