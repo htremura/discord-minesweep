@@ -135,7 +135,7 @@ def board_to_mbf_hex(board):
     # WIDTH (1 byte)
     # HEIGHT (1 byte)
     # MINES (2 bytes, big endian)
-    # MINE POSITIONS: X Y (each 1 byte)
+    # MINE POSITIONS: X Y (2 bytes, each 1 byte)
     output = bytearray()
     output.append(width)
     output.append(height)
