@@ -117,7 +117,7 @@ def parse_mbf_hex(hex_string):
 
     return width, height, mine_positions
 
-def board_to_mbf_hex(board):
+def minefield_to_rbf_hex(board):
     height = len(board)
     width = len(board[0])
 
@@ -191,7 +191,7 @@ else:
     exit(1)
 
 print_board(board)
-print(f'\n{board_to_mbf_hex(board)}\n')
+print(f'\n{minefield_to_rbf_hex(board)}\n')
 
 discord_minesweeper = input("Do you want to convert this to a discord spoilered board? (y/n): ").strip().lower()
 if discord_minesweeper in ("y", "yes"):
