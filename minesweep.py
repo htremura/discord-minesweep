@@ -107,7 +107,7 @@ def convert_to_discord(minefield):
     emote_map = {
         1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:',
         5: ':five:', 6: ':six:', 7: ':seven:', 8: ':eight:',
-        ' ': ':white_large_square:', 'B': ':bomb:'
+        'B': ':bomb:'
     }
     
     # Build the jazzy string
