@@ -145,7 +145,10 @@ def convert_to_plaintext(minefield):
         minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
 
     Returns:
-        plaintext (string): Plaintext representation of the minefield
+        status (list): List of status strings regarding length classification
+        plaintext_string (string): Discord formatted string with spoilered plaintext
+        total_chars (int): Total character count of the plaintext_string
+        total_cells (int): Total number of cells in the minefield
     """
 
     #print(f"DEBUG: convert_to_plaintext(minefield) CALLED")
@@ -298,67 +301,67 @@ print(f'\n{mbf_hex}\n')
 print("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)")
 output_choice = input("> ").strip().lower()
 
-if output_choice in ("d", "discord"):
-    # Discord emote output to clipboard
-    status, msg, chars, emotes = convert_to_discord(minefield)
-    
-    print(f"\nLength {chars}, Emotes {emotes}")
-    
-    if "too_many_emotes" in status:
-        print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
-    else:
-        if "ok" in status:
-            print(f"You can send this on Discord without Nitro ({chars} <= 2000 & {emotes} <= 99).")
-        elif "nitro_required" in status:
-            print(f"Message requires Nitro ({chars} > 2000).")
-            nitro = input("Do you have Nitro? (y/n): ").strip().lower()
-            if nitro in ("y", "yes"):
-                print(f"You can send this on Discord only because you have Nitro ({chars} <= 4000) & {emotes} <= 99).")
-            else:
-                print(f"You can only send this message with Nitro ({chars} > 4000) & {emotes} <= 99).")
-        elif "too_long" in status:
-            print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
+match output_choice:
+    case "d" | "discord":
+        # Discord emote output to clipboard
+        status, msg, chars, emotes = convert_to_discord(minefield)
+        
+        print(f"\nLength {chars}, Emotes {emotes}")
+        
+        if "too_many_emotes" in status:
+            print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
         else:
-            print("Unknown status.")
-    
-    
-    if "too_many_emotes" in status:
-        print("Discord message not copied due to emote constraint.")
-        ptexq = input("Convert to plaintext? (y/n)").strip().lower()
-        if ptexq in ("y", "yes"):
-            plaintext = convert_to_plaintext(minefield)
+            if "ok" in status:
+                print(f"You can send this on Discord without Nitro ({chars} <= 2000 & {emotes} <= 99).")
+            elif "nitro_required" in status:
+                print(f"Message requires Nitro ({chars} > 2000).")
+                nitro = input("Do you have Nitro? (y/n): ").strip().lower()
+                if nitro in ("y", "yes"):
+                    print(f"You can send this on Discord only because you have Nitro ({chars} <= 4000) & {emotes} <= 99).")
+                else:
+                    print(f"You can only send this message with Nitro ({chars} > 4000) & {emotes} <= 99).")
+            elif "too_long" in status:
+                print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
+            else:
+                print("Unknown status.")
+        
+        
+        if "too_many_emotes" in status:
+            print("Discord message not copied due to emote constraint.")
+            ptexq = input("Convert to plaintext? (y/n)").strip().lower()
+            if ptexq in ("y", "yes"):
+                plaintext = convert_to_plaintext(minefield)
+                try:
+                    pyperclip.copy(plaintext)
+                    print('\nPlaintext format copied to clipboard!\n')
+                except Exception:
+                    print('\nCould not copy to clipboard. Please copy manually:\n')
+                    print(plaintext)
+        elif (("ok" in status) or ("nitro_required" in status)):
             try:
-                pyperclip.copy(plaintext)
-                print('\nPlaintext format copied to clipboard!\n')
+                pyperclip.copy(msg)
+                print('\nDiscord format copied to clipboard!\n')
             except Exception:
                 print('\nCould not copy to clipboard. Please copy manually:\n')
-                print(plaintext)
-    elif (("ok" in status) or ("nitro_required" in status)):
+                print(msg)
+        else:
+            print("Discord message not copied due to length constraint.")
+    case "t" | "text":
+        plaintext = convert_to_plaintext(minefield)
         try:
-            pyperclip.copy(msg)
-            print('\nDiscord format copied to clipboard!\n')
+            pyperclip.copy(plaintext)
+            print('\nPlaintext format copied to clipboard!\n')
         except Exception:
             print('\nCould not copy to clipboard. Please copy manually:\n')
-            print(msg)
-    else:
-        print("Discord message not copied due to length constraint.")
+            print(plaintext)
 
-elif output_choice in ("t", "text"):
-    plaintext = convert_to_plaintext(minefield)
-    try:
-        pyperclip.copy(plaintext)
-        print('\nPlaintext format copied to clipboard!\n')
-    except Exception:
-        print('\nCould not copy to clipboard. Please copy manually:\n')
-        print(plaintext)
-
-elif output_choice in ("m", "mbf"):
-    # MBF hex output to clipboard
-    try:
-        pyperclip.copy(mbf_hex)
-        print('\n.MBF hexadecimal format copied to clipboard!\n')
-    except Exception:
-        print('\nCould not copy to clipboard. Please copy manually:\n')
-        print(mbf_hex)
-else:
-    print("Invalid input! Nothing copied to clipboard.")
+    case "m" | "mbf":
+        # MBF hex output to clipboard
+        try:
+            pyperclip.copy(mbf_hex)
+            print('\n.MBF hexadecimal format copied to clipboard!\n')
+        except Exception:
+            print('\nCould not copy to clipboard. Please copy manually:\n')
+            print(mbf_hex)
+    case _:
+        print("Invalid input! Nothing copied to clipboard.")
