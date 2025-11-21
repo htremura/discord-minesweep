@@ -1,6 +1,11 @@
 import random
 import pyperclip
 
+MAX_EMOTES = 99
+MAX_MESSAGE = 2000
+MAX_NITRO_MESSAGE = 4000
+
+
 def generate_minefield_from_mine_positions(rows, cols, mine_positions):
     """
     Generate a Minesweeper minefield from explicit mine coordinates.
@@ -122,12 +127,12 @@ def convert_to_discord(minefield):
     
     # Length classification
 
-    if total_cells > 99:
+    if total_cells > MAX_EMOTES:
         status.append("too_many_emotes")
 
-    if total_chars <= 2000:
+    if total_chars <= MAX_MESSAGE:
         status.append("ok")
-    elif total_chars <= 4000:
+    elif total_chars <= MAX_NITRO_MESSAGE:
         status.append("nitro_required")
     else:
         status.append("too_long")
