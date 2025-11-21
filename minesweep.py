@@ -104,6 +104,7 @@ def convert_to_discord(minefield):
     
     status = []
     discord_string = ''
+    parts = []
     total_chars = 0
     total_cells = len(minefield) * len(minefield[0])
 
@@ -118,11 +119,11 @@ def convert_to_discord(minefield):
         for cell in row:
             emote = emote_map.get(cell, ':white_large_square:')
             part = f'||{emote}||'
-            discord_string += part
+            parts.append(part)
             total_chars += len(part)
-        discord_string += '\n'
+        parts.append('\n')
         total_chars += 1
-    
+    discord_string = ''.join(parts)
     # Length classification
 
     if total_cells > MAX_EMOTES:
@@ -159,7 +160,15 @@ def convert_to_plaintext(minefield):
         for cell in row:
             plaintext += f'||`{cell}`||'
         plaintext += '\n'
-    return plaintext
+    
+    if total_chars <= MAX_MESSAGE:
+        status.append("ok")
+    elif total_chars <= MAX_NITRO_MESSAGE:
+        status.append("nitro_required")
+    else:
+        status.append("too_long")
+
+    return (status, plaintext_string, total_chars, total_cells)
 
 def parse_mbf_hex(hex_string):
     """
