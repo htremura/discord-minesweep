@@ -1,3 +1,5 @@
+# requires Python 3.10+ (match/case)
+
 import random
 import pyperclip
 
@@ -70,8 +72,9 @@ def generate_random_mine_positions(height, width, mine_count):
     #print("DEBUG: generate_random_mine_positions(height, width, mine_count) CALLED")
     #print(f"DEBUG: height: {height}, width: {width}, mine_count: {mine_count}")
 
-    all_positions = [(r, c) for r in range(height) for c in range(width)]
-    return random.sample(all_positions, mine_count)
+    all_positions = height * width
+    chosen = random.sample(range(all_positions), mine_count)
+    return [(i // width, i % width) for i in chosen]
 
 def print_minefield(minefield):
     """
@@ -315,6 +318,7 @@ match script_generated:
 
         except Exception as e:
             print("Error:", e)
+            exit(1)
 
     case "n" | "no":
         # Parse user MBF mode
@@ -329,6 +333,7 @@ match script_generated:
             
         except Exception as e:
             print("Error parsing MBF:", e)
+            exit(1)
 
     case _:
         print("Invalid choice. Please enter 'y' or 'n'.")
@@ -354,17 +359,13 @@ match output_choice:
             if "ok" in status:
                 print(f"You can send this on Discord without Nitro ({chars} <= {MAX_MESSAGE} & {emotes} <= {MAX_EMOTES}).")
             elif "nitro_required" in status:
-                print(f"Message requires Nitro ({chars} > {MAX_MESSAGE}).")
-                nitro = input("Do you have Nitro? (y/n): ").strip().lower()
-                if nitro in ("y", "yes"):
-                    print(f"You can send this on Discord only because you have Nitro ({chars} <= {MAX_NITRO_MESSAGE}) & {emotes} <= {MAX_EMOTES}).")
-                else:
-                    print(f"You can only send this message with Nitro ({chars} <= {MAX_NITRO_MESSAGE}) & {emotes} <= {MAX_EMOTES}).")
+                print(f"Message longer than normal user limit ({chars} > {MAX_MESSAGE}).")
+                print(f"You can only send this message with Nitro ({chars} <= {MAX_NITRO_MESSAGE}) & {emotes} <= {MAX_EMOTES}).")
             elif "too_long" in status:
                 print(f"Message too long ({chars} > {MAX_NITRO_MESSAGE}). Cannot send even with Nitro.")
+
             else:
                 print("Unknown status.")
-        
         
         if "too_many_emotes" in status:
             print("Discord message not copied due to emote constraint.")
@@ -376,17 +377,18 @@ match output_choice:
                 
                 if "ok" in plainstatus:
                     print(f"You can send this on Discord without Nitro ({plainchars} <= {MAX_MESSAGE}).")
+
                 elif "nitro_required" in plainstatus:
-                    print(f"Message requires Nitro ({plainchars} > {MAX_MESSAGE}).")
-                    nitro = input("Do you have Nitro? (y/n): ").strip().lower()
-                    if nitro in ("y", "yes"):
-                        print(f"You can send this on Discord only because you have Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
-                    else:
-                        print(f"You can only send this message with Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+                    print(f"Message longer than normal user limit ({plainchars} > {MAX_MESSAGE}).")
+                    print(f"You can only send this message with Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+
                 elif "too_long" in plainstatus:
                     print(f"Message too long ({plainchars} > {MAX_NITRO_MESSAGE}). Cannot send even with Nitro.")
-                else:
-                    copy_to_clipboard(msg)
+                
+                copy_to_clipboard(plainmsg)
+
+            else:
+                copy_to_clipboard(msg)
 
     case "t" | "text":
         plainstatus, plainmsg, plainchars, plaincells = minefield_to_discordtext(minefield)
@@ -396,17 +398,12 @@ match output_choice:
         if "ok" in plainstatus:
             print(f"You can send this on Discord without Nitro ({plainchars} <= {MAX_MESSAGE}).")
         elif "nitro_required" in plainstatus:
-            print(f"Message requires Nitro ({plainchars} > {MAX_MESSAGE}).")
-            nitro = input("Do you have Nitro? (y/n): ").strip().lower()
-            if nitro in ("y", "yes"):
-                print(f"You can send this on Discord only because you have Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
-            else:
-                print(f"You can only send this message with Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+            print(f"Message longer than normal user limit ({plainchars} > {MAX_MESSAGE}).")
+            print(f"You can only send this message with Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
         elif "too_long" in plainstatus:
             print(f"Message too long ({plainchars} > {MAX_NITRO_MESSAGE}). Cannot send even with Nitro.")
         else:
             print("Unknown plainstatus.")
-
 
         copy_to_clipboard(plainmsg)
 
