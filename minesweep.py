@@ -17,7 +17,7 @@ def generate_minefield_from_mine_positions(rows, cols, mine_positions):
     #print(f"DEBUG: generate_minefield_from_mine_positions(rows, cols, mine_positions) CALLED")
     #print(f"DEBUG: rows: {rows}, cols: {cols}, mine_positions: {mine_positions}")
 
-    # Initialize empty board
+    # Initialize empty minefield
     minefield = [[0 for _ in range(cols)] for _ in range(rows)]
 
     # Place mines
@@ -81,11 +81,11 @@ def print_minefield(minefield):
     for row in minefield:
         print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
 
-def convert_to_discord(board):
+def convert_to_discord(minefield):
     """
     Convert minefield to Discord spoilered message using emotes.
     Parameters:
-        board (2D list): Grid with indicative numbers and 'B' where bombs are located
+        minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
     Returns:
         status (list): List of status strings regarding length classification
         discord_string (string): Discord formatted string with emotes
@@ -94,11 +94,11 @@ def convert_to_discord(board):
     """
     
 
-    #print(f"DEBUG: convert_to_discord(board) CALLED")
-    #print(f"DEBUG: board: {board}")
+    #print(f"DEBUG: convert_to_discord(minefield) CALLED")
+    #print(f"DEBUG: minefield: {minefield}")
     
-    rows = len(board)
-    cols = len(board[0])
+    rows = len(minefield)
+    cols = len(minefield[0])
     total_cells = rows * cols
     discord_string = ''
     total_chars = 0
@@ -111,7 +111,7 @@ def convert_to_discord(board):
     }
     
     # Build the jazzy string
-    for row in board:
+    for row in minefield:
         for cell in row:
             emote = emote_map.get(cell, ':white_large_square:')
             part = f'||{emote}||'
@@ -125,13 +125,35 @@ def convert_to_discord(board):
     if total_cells > 99:
         status.append("too_many_emotes")
 
-    if total_chars <= 4000:
+    if total_chars <= 2000:
+        status.append("ok")
+    elif total_chars <= 4000:
         status.append("nitro_required")
-
-    if total_chars > 4000:
+    else:
         status.append("too_long")
 
     return (status, discord_string, total_chars, total_cells)
+
+def convert_to_plaintext(minefield):
+    """
+    Generate plaintext representation of the minefield.
+
+    Parameters:
+        minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
+
+    Returns:
+        plaintext (string): Plaintext representation of the minefield
+    """
+
+    #print(f"DEBUG: convert_to_plaintext(minefield) CALLED")
+    #print(f"DEBUG: minefield: {minefield}")
+
+    plaintext = ''
+    for row in minefield:
+        for cell in row:
+            plaintext += f'||`{cell}`||'
+        plaintext += '\n'
+    return plaintext
 
 def parse_mbf_hex(hex_string):
     """
@@ -239,21 +261,21 @@ if script_generated in ("y", "yes"):
         randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
         minefield = generate_minefield_from_mine_positions(rows, cols, randomized_mine_positions)
 
-        print('\nGenerated Minesweeper Board:\n')
+        print('\nGenerated Minesweeper Minefield:\n')
 
     except Exception as e:
         print('Error:', e)
 
 elif script_generated in ("n", "no"):
     # Parse manual MBF mode
-    print('Please input your own board manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html')
+    print('Please input your own minefield manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html')
     hex_string = input("> ").strip()
     try:
         width, height, mines = parse_mbf_hex(hex_string)
         print(f"Width: {width}, Height: {height}, Mines: {len(mines)}")
         
         minefield = generate_minefield_from_mbf_hex(hex_string)
-        print("\nParsed Minesweeper Board:\n")
+        print("\nParsed Minesweeper Minefield:\n")
         
     except Exception as e:
         print("Error parsing MBF:", e)
@@ -263,12 +285,14 @@ else:
     exit(1)
 
 print_minefield(minefield)
-print(f'\n{minefield_to_rbf_hex(minefield)}\n')
+mbf_hex = minefield_to_rbf_hex(minefield)
+print(f'\n{mbf_hex}\n')
 
 print("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)")
 output_choice = input("> ").strip().lower()
 
 if output_choice in ("d", "discord"):
+    # Discord emote output to clipboard
     status, msg, chars, emotes = convert_to_discord(minefield)
     
     print(f"\nLength {chars}, Emotes {emotes}")
@@ -277,20 +301,20 @@ if output_choice in ("d", "discord"):
         print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
     else:
         if "ok" in status:
-            print(f"Message can be sent on Discord (Chars: {chars} <= 2000) & Emotes: {emotes} <= 99).")
+            print(f"You can send this on Discord without Nitro ({chars} <= 2000 & {emotes} <= 99).")
         elif "nitro_required" in status:
             print(f"Message requires Nitro ({chars} > 2000).")
             nitro = input("Do you have Nitro? (y/n): ").strip().lower()
             if nitro in ("y", "yes"):
-                print(f"You can send this on Discord only because you have Nitro (Chars: {chars} <= 4000) & Emotes: {emotes} <= 99).")
+                print(f"You can send this on Discord only because you have Nitro ({chars} <= 4000) & {emotes} <= 99).")
             else:
-                print(f"You cannot send this without Nitro (Chars: {chars} > 4000) & Emotes: {emotes} <= 99).")
+                print(f"You can only send this message with Nitro ({chars} > 4000) & {emotes} <= 99).")
         elif "too_long" in status:
             print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
         else:
             print("Unknown status.")
     
-    if status in ("ok", "nitro_required"):
+    if (("ok" in status) or ("nitro_required" in status)):
         try:
             pyperclip.copy(msg)
             print('\nDiscord format copied to clipboard!\n')
@@ -299,5 +323,20 @@ if output_choice in ("d", "discord"):
     else:
         print("Discord message not copied due to length/emote constraints.")
 
+elif output_choice in ("t", "text"):
+    plaintext = convert_to_plaintext(minefield)
+    try:
+        pyperclip.copy(plaintext)
+        print('\nPlaintext format copied to clipboard!\n')
+    except Exception:
+        print('\nCould not copy to clipboard. Please copy manually.\n')
+
+elif output_choice in ("m", "mbf"):
+    # MBF hex output to clipboard
+    try:
+        pyperclip.copy(mbf_hex)
+        print('\n.MBF hexadecimal format copied to clipboard!\n')
+    except Exception:
+        print('\nCould not copy to clipboard. Please copy manually.\n')
 else:
     print("OK!")
