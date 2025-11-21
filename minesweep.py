@@ -302,7 +302,7 @@ def copy_to_clipboard(text):
 
 # Main script
 
-script_generated = input("Do you want this script to generate a Minesweeper board? (y/n): ").strip().lower()
+script_generated = input("Do you want this script to generate a Minesweeper minefield? (y/n): ").strip().lower()
 match script_generated:
     case "y" | "yes":
         # Generate minefield mode
