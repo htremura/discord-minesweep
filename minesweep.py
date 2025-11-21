@@ -201,7 +201,7 @@ def parse_mbf_hex(hex_string):
 
     return width, height, mine_positions
 
-def minefield_to_rbf_hex(minefield):
+def minefield_to_mbf_hex(minefield):
     """
     Generate mbf hex string from minefield.
 
@@ -212,7 +212,7 @@ def minefield_to_rbf_hex(minefield):
         mbf_hex (string): mbf hexadecimal string
     """
 
-    #print(f"DEBUG: minefield_to_rbf_hex(minefield) CALLED")
+    #print(f"DEBUG: minefield_to_mbf_hex(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
 
     height = len(minefield)
@@ -292,7 +292,7 @@ else:
 print_minefield(minefield)
 
 print("\nGenerated .MBF Hexadecimal Representation:")
-mbf_hex = minefield_to_rbf_hex(minefield)
+mbf_hex = minefield_to_mbf_hex(minefield)
 print(f'\n{mbf_hex}\n')
 
 print("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)")
