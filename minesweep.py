@@ -111,10 +111,6 @@ def minefield_to_discordemotes(minefield):
     parts = []
     total_chars = 0
     total_cells = len(minefield) * len(minefield[0])
-    
-    # Quit early if too many emotes
-    if total_cells > MAX_EMOTES:
-        return (["too_many_emotes"], "", 0, total_cells)
 
     emote_map = {
         1: ":one:", 2: ":two:", 3: ":three:", 4: ":four:",
@@ -132,6 +128,11 @@ def minefield_to_discordemotes(minefield):
         parts.append('\n')
         total_chars += 1
     discord_string = "".join(parts)
+
+    
+    # Don't quit early if too many emotes, because we want to output it for the user if they want to copy it anyway
+    if total_cells > MAX_EMOTES:
+        return (["too_many_emotes"], "", 0, total_cells)
 
     if total_chars <= MAX_MESSAGE:
         status.append("ok")
