@@ -14,6 +14,9 @@ def generate_minefield_from_mine_positions(rows, cols, mine_positions):
         minefield (2D list): Numbers and 'B' where bombs are located
     """
 
+    #print(f"DEBUG: generate_minefield_from_mine_positions(rows, cols, mine_positions) CALLED")
+    #print(f"DEBUG: rows: {rows}, cols: {cols}, mine_positions: {mine_positions}")
+
     # Initialize empty board
     minefield = [[0 for _ in range(cols)] for _ in range(rows)]
 
@@ -40,6 +43,9 @@ def generate_minefield_from_mbf_hex(mbf_hex):
         minefield (2D list): Numbers and 'B' where bombs are located
     """
 
+    #print(f"DEBUG: generate_minefield_from_mbf_hex(mbf_hex) CALLED")
+    #print(f"DEBUG: mbf_hex: {mbf_hex}")
+
     width, height, mine_positions = parse_mbf_hex(mbf_hex)
     return generate_minefield_from_mine_positions(height, width, mine_positions)
 
@@ -56,14 +62,41 @@ def generate_random_mine_positions(rows, cols, mine_count):
         mine_positions (list of (row, col)): Random mine coordinates
     """
 
+    #print(f"DEBUG: generate_random_mine_positions(rows, cols, mine_count) CALLED")
+    #print(f"DEBUG: rows: {rows}, cols: {cols}, mine_count: {mine_count}")
+
     all_positions = [(r, c) for r in range(rows) for c in range(cols)]
     return random.sample(all_positions, mine_count)
 
 def print_minefield(minefield):
+    """
+    Print the minefield in a readable format.
+    Parameters:
+        minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
+    """
+
+    #print(f"DEBUG: print_minefield(minefield) CALLED")
+    #print(f"DEBUG: minefield: {minefield}")
+
     for row in minefield:
         print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
 
 def convert_to_discord(board):
+    """
+    Convert minefield to Discord spoilered message using emotes.
+    Parameters:
+        board (2D list): Grid with indicative numbers and 'B' where bombs are located
+    Returns:
+        status (list): List of status strings regarding length classification
+        discord_string (string): Discord formatted string with emotes
+        total_chars (int): Total character count of the discord_string
+        total_cells (int): Total number of cells in the minefield
+    """
+    
+
+    #print(f"DEBUG: convert_to_discord(board) CALLED")
+    #print(f"DEBUG: board: {board}")
+    
     rows = len(board)
     cols = len(board[0])
     total_cells = rows * cols
@@ -101,6 +134,19 @@ def convert_to_discord(board):
     return (status, discord_string, total_chars, total_cells)
 
 def parse_mbf_hex(hex_string):
+    """
+    Parse mbf hex string into minefield dimensions and mine positions.
+    Parameters:
+        hex_string (string): mbf hexadecimal string
+    Returns:
+        width (int): Width of the minefield
+        height (int): Height of the minefield
+        mine_positions (list of (row, col)): Mine coordinates
+    """
+
+    #print(f"DEBUG: parse_mbf_hex(hex_string) CALLED")
+    #print(f"DEBUG: hex_string: {hex_string}")
+    
     # remove spaces/newlines
     cleaned = hex_string.replace(' ', '').replace('\n', '')
     
@@ -138,6 +184,10 @@ def minefield_to_rbf_hex(minefield):
     Returns:
         mbf_hex (string): mbf hexadecimal string
     """
+
+    #print(f"DEBUG: minefield_to_rbf_hex(minefield) CALLED")
+    #print(f"DEBUG: minefield: {minefield}")
+
     height = len(minefield)
     width = len(minefield[0])
 
