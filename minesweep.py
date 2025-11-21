@@ -102,12 +102,10 @@ def convert_to_discord(minefield):
     #print(f"DEBUG: convert_to_discord(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
     
-    height = len(minefield)
-    width = len(minefield[0])
-    total_cells = height * width
+    status = []
     discord_string = ''
     total_chars = 0
-    status = []
+    total_cells = len(minefield) * len(minefield[0])
 
     emote_map = {
         1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:',
@@ -115,7 +113,7 @@ def convert_to_discord(minefield):
         'B': ':bomb:'
     }
     
-    # Build the jazzy string
+    # Build the discord_string
     for row in minefield:
         for cell in row:
             emote = emote_map.get(cell, ':white_large_square:')
