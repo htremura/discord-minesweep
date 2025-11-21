@@ -237,7 +237,7 @@ if script_generated in ("y", "yes"):
         if minecount < 1 or minecount >= rows * cols:
             raise ValueError('Number of mines must be at least 1 and less than total cells.')
         randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
-        minefield = generate_minefield_from_mine_positions(cols, rows, randomized_mine_positions)
+        minefield = generate_minefield_from_mine_positions(rows, cols, randomized_mine_positions)
 
         print('\nGenerated Minesweeper Board:\n')
 
