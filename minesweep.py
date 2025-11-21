@@ -132,7 +132,7 @@ def minefield_to_discordemotes(minefield):
     
     # Don't quit early if too many emotes, because we want to output it for the user if they want to copy it anyway
     if total_cells > MAX_EMOTES:
-        return (["too_many_emotes"], "", 0, total_cells)
+        status.append("too_many_emotes")
 
     if total_chars <= MAX_MESSAGE:
         status.append("ok")
