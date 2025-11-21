@@ -87,7 +87,7 @@ def print_minefield(minefield):
     #print(f"DEBUG: minefield: {minefield}")
 
     for row in minefield:
-        print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
+        print(' '.join(str(cell) if cell != 0 else '.' for cell in row))
     print("")
 
 def minefield_to_discordemotes(minefield):
@@ -111,6 +111,10 @@ def minefield_to_discordemotes(minefield):
     parts = []
     total_chars = 0
     total_cells = len(minefield) * len(minefield[0])
+    
+    # Quit early if too many emotes
+    if total_cells > MAX_EMOTES:
+        return (["too_many_emotes"], "", 0, total_cells)
 
     emote_map = {
         1: ":one:", 2: ":two:", 3: ":three:", 4: ":four:",
@@ -128,10 +132,6 @@ def minefield_to_discordemotes(minefield):
         parts.append('\n')
         total_chars += 1
     discord_string = "".join(parts)
-    
-    # Length classification
-    if total_cells > MAX_EMOTES:
-        status.append("too_many_emotes")
 
     if total_chars <= MAX_MESSAGE:
         status.append("ok")
@@ -207,6 +207,7 @@ def parse_mbf_hex(hex_string):
     
     if len(cleaned) < 8:
         raise ValueError("Hex string too short to contain MBF header.")
+        exit(1)
 
     data = bytes.fromhex(cleaned)
 
@@ -217,6 +218,10 @@ def parse_mbf_hex(hex_string):
     expected_len = 4 + mines * 2
     if len(data) != expected_len:
         raise ValueError(f"Expected {expected_len} bytes for {mines} mines, got {len(data)}.")
+        exit(1)
+    if mines > width * height:
+        raise ValueError("MBF declares more mines than possible cells.")
+        exit(1)
 
     mine_positions = []
     idx = 4
@@ -350,12 +355,11 @@ match output_choice:
     case "d" | "discord":
         # Discord emote output to clipboard
         status, msg, chars, emotes = minefield_to_discordemotes(minefield)
-        
-        print(f"\nLength {chars}, Emotes {emotes}")
-        
+                
         if "too_many_emotes" in status:
             print(f"Too many emotes: ({emotes} > {MAX_EMOTES}). Cannot send on Discord.")
         else:
+            print(f"\nLength {chars}, Emotes {emotes}")
             if "ok" in status:
                 print(f"You can send this on Discord without Nitro ({chars} <= {MAX_MESSAGE} & {emotes} <= {MAX_EMOTES}).")
             elif "nitro_required" in status:
@@ -388,7 +392,10 @@ match output_choice:
                 copy_to_clipboard(plainmsg)
 
             else:
+                print("Just know that this Discord message cannot be posted due to the emote constraint.")
                 copy_to_clipboard(msg)
+        else:
+            copy_to_clipboard(msg)
 
     case "t" | "text":
         plainstatus, plainmsg, plainchars, plaincells = minefield_to_discordtext(minefield)
