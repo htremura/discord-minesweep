@@ -69,6 +69,7 @@ def convert_to_discord(board):
     total_cells = rows * cols
     discord_string = ''
     total_chars = 0
+    status = []
 
     emote_map = {
         1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:',
@@ -89,15 +90,15 @@ def convert_to_discord(board):
     # Length classification
 
     if total_cells > 99:
-        return ("too_many_emotes", discord_string, total_chars, total_cells)
-    
-    if total_chars <= 2000:
-        return ("ok", discord_string, total_chars, total_cells)
+        status.append("too_many_emotes")
 
     if total_chars <= 4000:
-        return ("nitro_required", discord_string, total_chars, total_cells)
+        status.append("nitro_required")
 
-    return ("too_long", total_chars)
+    if total_chars > 4000:
+        status.append("too_long")
+
+    return (status, discord_string, total_chars, total_cells)
 
 def parse_mbf_hex(hex_string):
     # remove spaces/newlines
@@ -222,29 +223,22 @@ if output_choice in ("d", "discord"):
     
     print(f"\nLength {chars}, Emotes {emotes}")
     
-    if status == "ok":
-        print("You can send this on Discord without Nitro.")
-
-    elif status == "nitro_required":
-        print(f"Message requires Nitro ({chars} > 2000).")
-        nitro = input("Do you have Nitro? (y/n): ").strip().lower()
-        if nitro in ("y", "yes"):
-            print("You can send this on Discord only because you have Nitro.")
-        else:
-            print(f"You cannot send this without Nitro.")
-
-    elif status == "too_many_emotes":
+    if "too_many_emotes" in status:
         print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
-        if chars > 4000:
-            print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
-
-    elif status == "too_long":
-        print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
-        if emotes > 99:
-            print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
-
     else:
-        print("Unknown status.")
+        if "ok" in status:
+            print(f"Message can be sent on Discord (Chars: {chars} <= 2000) & Emotes: {emotes} <= 99).")
+        elif "nitro_required" in status:
+            print(f"Message requires Nitro ({chars} > 2000).")
+            nitro = input("Do you have Nitro? (y/n): ").strip().lower()
+            if nitro in ("y", "yes"):
+                print(f"You can send this on Discord only because you have Nitro (Chars: {chars} <= 4000) & Emotes: {emotes} <= 99).")
+            else:
+                print(f"You cannot send this without Nitro (Chars: {chars} > 4000) & Emotes: {emotes} <= 99).")
+        elif "too_long" in status:
+            print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
+        else:
+            print("Unknown status.")
     
     if status in ("ok", "nitro_required"):
         try:
