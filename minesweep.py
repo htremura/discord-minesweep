@@ -85,6 +85,7 @@ def print_minefield(minefield):
 
     for row in minefield:
         print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
+    print("")
 
 def convert_to_discord(minefield):
     """
@@ -292,7 +293,6 @@ def copy_to_clipboard(text):
 # Main script
 
 script_generated = input("Do you want this script to generate a Minesweeper board? (y/n): ").strip().lower()
-
 match script_generated:
     case "y" | "yes":
         # Generate minefield mode
@@ -334,12 +334,11 @@ match script_generated:
 
 print_minefield(minefield)
 
-print("\nGenerated .MBF Hexadecimal Representation:")
+print("Generated .MBF Hexadecimal Representation:\n")
 mbf_hex = minefield_to_mbf_hex(minefield)
-print(f"\n{mbf_hex}\n")
+print(f"{mbf_hex}\n")
 
 output_choice = input("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)\n> ").strip().lower()
-
 match output_choice:
     case "d" | "discord":
         # Discord emote output to clipboard
