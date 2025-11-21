@@ -171,7 +171,8 @@ def minefield_to_discordtext(minefield):
     # Build the discordtext_string
     for row in minefield:
         for cell in row:
-            part = f"||`{cell}`||"
+            display = '.' if cell == 0 else str(cell)
+            part = f"||`{display}`||"
             parts.append(part)
             total_chars += len(part)
         parts.append('\n')
@@ -207,7 +208,6 @@ def parse_mbf_hex(hex_string):
     
     if len(cleaned) < 8:
         raise ValueError("Hex string too short to contain MBF header.")
-        exit(1)
 
     data = bytes.fromhex(cleaned)
 
@@ -218,10 +218,9 @@ def parse_mbf_hex(hex_string):
     expected_len = 4 + mines * 2
     if len(data) != expected_len:
         raise ValueError(f"Expected {expected_len} bytes for {mines} mines, got {len(data)}.")
-        exit(1)
+
     if mines > width * height:
         raise ValueError("MBF declares more mines than possible cells.")
-        exit(1)
 
     mine_positions = []
     idx = 4
@@ -230,6 +229,7 @@ def parse_mbf_hex(hex_string):
         y = data[idx + 1]
         if x >= width or y >= height:
             raise ValueError("Mine position outside grid bounds.")
+            
         idx += 2
         # x=column, y=row
         mine_positions.append((y, x))
