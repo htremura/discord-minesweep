@@ -19,7 +19,7 @@ def generate_minefield_from_mine_positions(height, width, mine_positions):
         minefield (2D list): Numbers and 'B' where bombs are located
     """
 
-    #print(f"DEBUG: generate_minefield_from_mine_positions(height, width, mine_positions) CALLED")
+    #print("DEBUG: generate_minefield_from_mine_positions(height, width, mine_positions) CALLED")
     #print(f"DEBUG: height: {height}, width: {width}, mine_positions: {mine_positions}")
 
     # Initialize empty minefield
@@ -48,7 +48,7 @@ def generate_minefield_from_mbf_hex(mbf_hex):
         minefield (2D list): Numbers and 'B' where bombs are located
     """
 
-    #print(f"DEBUG: generate_minefield_from_mbf_hex(mbf_hex) CALLED")
+    #print("DEBUG: generate_minefield_from_mbf_hex(mbf_hex) CALLED")
     #print(f"DEBUG: mbf_hex: {mbf_hex}")
 
     width, height, mine_positions = parse_mbf_hex(mbf_hex)
@@ -67,7 +67,7 @@ def generate_random_mine_positions(height, width, mine_count):
         mine_positions (list of (row, column)): Random mine coordinates
     """
 
-    #print(f"DEBUG: generate_random_mine_positions(height, width, mine_count) CALLED")
+    #print("DEBUG: generate_random_mine_positions(height, width, mine_count) CALLED")
     #print(f"DEBUG: height: {height}, width: {width}, mine_count: {mine_count}")
 
     all_positions = [(r, c) for r in range(height) for c in range(width)]
@@ -80,7 +80,7 @@ def print_minefield(minefield):
         minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
     """
 
-    #print(f"DEBUG: print_minefield(minefield) CALLED")
+    #print("DEBUG: print_minefield(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
 
     for row in minefield:
@@ -99,7 +99,7 @@ def convert_to_discord(minefield):
     """
     
 
-    #print(f"DEBUG: convert_to_discord(minefield) CALLED")
+    #print("DEBUG: convert_to_discord(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
     
     status = []
@@ -124,8 +124,8 @@ def convert_to_discord(minefield):
         parts.append('\n')
         total_chars += 1
     discord_string = ''.join(parts)
+    
     # Length classification
-
     if total_cells > MAX_EMOTES:
         status.append("too_many_emotes")
 
@@ -152,15 +152,27 @@ def convert_to_plaintext(minefield):
         total_cells (int): Total number of cells in the minefield
     """
 
-    #print(f"DEBUG: convert_to_plaintext(minefield) CALLED")
+    #print("DEBUG: convert_to_plaintext(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
 
-    plaintext = ''
+    
+    status = []
+    plaintext_string = ''
+    parts = []
+    total_chars = 0
+    total_cells = len(minefield) * len(minefield[0])
+
+    # Build the plaintext_string
     for row in minefield:
         for cell in row:
-            plaintext += f'||`{cell}`||'
-        plaintext += '\n'
+            part = f'||`{cell}`||'
+            parts.append(part)
+            total_chars += len(part)
+        parts.append('\n')
+        total_chars += 1
+    plaintext_string = ''.join(parts)
     
+    # Length classification
     if total_chars <= MAX_MESSAGE:
         status.append("ok")
     elif total_chars <= MAX_NITRO_MESSAGE:
@@ -181,7 +193,7 @@ def parse_mbf_hex(hex_string):
         mine_positions (list of (row, col)): Mine coordinates
     """
 
-    #print(f"DEBUG: parse_mbf_hex(hex_string) CALLED")
+    #print("DEBUG: parse_mbf_hex(hex_string) CALLED")
     #print(f"DEBUG: hex_string: {hex_string}")
     
     # remove spaces/newlines
@@ -224,7 +236,7 @@ def minefield_to_mbf_hex(minefield):
         mbf_hex (string): mbf hexadecimal string
     """
 
-    #print(f"DEBUG: minefield_to_mbf_hex(minefield) CALLED")
+    #print("DEBUG: minefield_to_mbf_hex(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
 
     height = len(minefield)
@@ -257,6 +269,24 @@ def minefield_to_mbf_hex(minefield):
     # Convert to spaced hex string for readability
     mbf_hex = " ".join(f"{b:02X}" for b in output)
     return mbf_hex
+
+def copy_to_clipboard(text):
+    """
+    Copy text to clipboard using pyperclip.
+
+    Parameters:
+        text (string): Text to copy
+    """
+
+    #print("DEBUG: copy_to_clipboard(text) CALLED")
+    #print(f"DEBUG: text: {text}")
+
+    try:
+        pyperclip.copy(text)
+        print('\nText copied to clipboard!\n')
+    except Exception:
+        print('\nCould not copy to clipboard. Please copy manually:\n')
+        print(text)
 
 
 # Main script
@@ -318,59 +348,59 @@ match output_choice:
         print(f"\nLength {chars}, Emotes {emotes}")
         
         if "too_many_emotes" in status:
-            print(f"Too many emotes: ({emotes}>99). Cannot send on Discord.")
+            print(f"Too many emotes: ({emotes} > {MAX_EMOTES}). Cannot send on Discord.")
         else:
             if "ok" in status:
-                print(f"You can send this on Discord without Nitro ({chars} <= 2000 & {emotes} <= 99).")
+                print(f"You can send this on Discord without Nitro ({chars} <= {MAX_MESSAGE} & {emotes} <= {MAX_EMOTES}).")
             elif "nitro_required" in status:
-                print(f"Message requires Nitro ({chars} > 2000).")
+                print(f"Message requires Nitro ({chars} > {MAX_MESSAGE}).")
                 nitro = input("Do you have Nitro? (y/n): ").strip().lower()
                 if nitro in ("y", "yes"):
-                    print(f"You can send this on Discord only because you have Nitro ({chars} <= 4000) & {emotes} <= 99).")
+                    print(f"You can send this on Discord only because you have Nitro ({chars} <= {MAX_NITRO_MESSAGE}) & {emotes} <= {MAX_EMOTES}).")
                 else:
-                    print(f"You can only send this message with Nitro ({chars} > 4000) & {emotes} <= 99).")
+                    print(f"You can only send this message with Nitro ({chars} <= {MAX_NITRO_MESSAGE}) & {emotes} <= {MAX_EMOTES}).")
             elif "too_long" in status:
-                print(f"Message too long ({chars}>4000). Cannot send even with Nitro.")
+                print(f"Message too long ({chars} > {MAX_NITRO_MESSAGE}). Cannot send even with Nitro.")
             else:
                 print("Unknown status.")
         
         
         if "too_many_emotes" in status:
             print("Discord message not copied due to emote constraint.")
-            ptexq = input("Convert to plaintext? (y/n)").strip().lower()
-            if ptexq in ("y", "yes"):
+            ptextq = input("Convert to plaintext? (y/n)").strip().lower()
+            if ptextq in ("y", "yes"):
                 plaintext = convert_to_plaintext(minefield)
-                try:
-                    pyperclip.copy(plaintext)
-                    print('\nPlaintext format copied to clipboard!\n')
-                except Exception:
-                    print('\nCould not copy to clipboard. Please copy manually:\n')
-                    print(plaintext)
-        elif (("ok" in status) or ("nitro_required" in status)):
-            try:
-                pyperclip.copy(msg)
-                print('\nDiscord format copied to clipboard!\n')
-            except Exception:
-                print('\nCould not copy to clipboard. Please copy manually:\n')
-                print(msg)
+                copy_to_clipboard(plaintext)
+            else:
+                copy_to_clipboard(msg)
         else:
-            print("Discord message not copied due to length constraint.")
+            copy_to_clipboard(msg)
+
     case "t" | "text":
-        plaintext = convert_to_plaintext(minefield)
-        try:
-            pyperclip.copy(plaintext)
-            print('\nPlaintext format copied to clipboard!\n')
-        except Exception:
-            print('\nCould not copy to clipboard. Please copy manually:\n')
-            print(plaintext)
+        plainstatus, plainmsg, plainchars, plaincells = convert_to_plaintext(minefield)
+
+        print(f"\nLength {plainchars}")
+        
+        if "ok" in plainstatus:
+            print(f"You can send this on Discord without Nitro ({plainchars} <= {MAX_MESSAGE}).")
+        elif "nitro_required" in plainstatus:
+            print(f"Message requires Nitro ({plainchars} > {MAX_MESSAGE}).")
+            nitro = input("Do you have Nitro? (y/n): ").strip().lower()
+            if nitro in ("y", "yes"):
+                print(f"You can send this on Discord only because you have Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+            else:
+                print(f"You can only send this message with Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+        elif "too_long" in plainstatus:
+            print(f"Message too long ({plainchars} > {MAX_NITRO_MESSAGE}). Cannot send even with Nitro.")
+        else:
+            print("Unknown plainstatus.")
+
+
+        copy_to_clipboard(plainmsg)
 
     case "m" | "mbf":
         # MBF hex output to clipboard
-        try:
-            pyperclip.copy(mbf_hex)
-            print('\n.MBF hexadecimal format copied to clipboard!\n')
-        except Exception:
-            print('\nCould not copy to clipboard. Please copy manually:\n')
-            print(mbf_hex)
+        copy_to_clipboard(mbf_hex)
+        
     case _:
         print("Invalid input! Nothing copied to clipboard.")
