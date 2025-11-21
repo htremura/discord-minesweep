@@ -285,6 +285,8 @@ else:
     exit(1)
 
 print_minefield(minefield)
+
+print("\nGenerated .MBF Hexadecimal Representation:")
 mbf_hex = minefield_to_rbf_hex(minefield)
 print(f'\n{mbf_hex}\n')
 
@@ -314,14 +316,27 @@ if output_choice in ("d", "discord"):
         else:
             print("Unknown status.")
     
-    if (("ok" in status) or ("nitro_required" in status)):
+    
+    if "too_many_emotes" in status:
+        print("Discord message not copied due to emote constraint.")
+        ptexq = input("Convert to plaintext?").strip().lower()
+        if ptexq in ("y", "yes"):
+            plaintext = convert_to_plaintext(minefield)
+            try:
+                pyperclip.copy(plaintext)
+                print('\nPlaintext format copied to clipboard!\n')
+            except Exception:
+                print('\nCould not copy to clipboard. Please copy manually:\n')
+                print(plaintext)
+    elif (("ok" in status) or ("nitro_required" in status)):
         try:
             pyperclip.copy(msg)
             print('\nDiscord format copied to clipboard!\n')
         except Exception:
-            print('\nCould not copy to clipboard. Please copy manually.\n')
+            print('\nCould not copy to clipboard. Please copy manually:\n')
+            print(msg)
     else:
-        print("Discord message not copied due to length/emote constraints.")
+        print("Discord message not copied due to length constraint.")
 
 elif output_choice in ("t", "text"):
     plaintext = convert_to_plaintext(minefield)
@@ -329,7 +344,8 @@ elif output_choice in ("t", "text"):
         pyperclip.copy(plaintext)
         print('\nPlaintext format copied to clipboard!\n')
     except Exception:
-        print('\nCould not copy to clipboard. Please copy manually.\n')
+        print('\nCould not copy to clipboard. Please copy manually:\n')
+        print(plaintext)
 
 elif output_choice in ("m", "mbf"):
     # MBF hex output to clipboard
@@ -337,6 +353,7 @@ elif output_choice in ("m", "mbf"):
         pyperclip.copy(mbf_hex)
         print('\n.MBF hexadecimal format copied to clipboard!\n')
     except Exception:
-        print('\nCould not copy to clipboard. Please copy manually.\n')
+        print('\nCould not copy to clipboard. Please copy manually:\n')
+        print(mbf_hex)
 else:
-    print("OK!")
+    print("Invalid input! Nothing copied to clipboard.")
