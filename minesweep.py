@@ -87,7 +87,7 @@ def print_minefield(minefield):
         print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
     print("")
 
-def convert_to_discord(minefield):
+def minefield_to_discordemotes(minefield):
     """
     Convert minefield to Discord spoilered message using emotes.
     Parameters:
@@ -100,7 +100,7 @@ def convert_to_discord(minefield):
     """
     
 
-    #print("DEBUG: convert_to_discord(minefield) CALLED")
+    #print("DEBUG: minefield_to_discordemotes(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
     
     status = []
@@ -132,38 +132,40 @@ def convert_to_discord(minefield):
 
     if total_chars <= MAX_MESSAGE:
         status.append("ok")
+
     elif total_chars <= MAX_NITRO_MESSAGE:
         status.append("nitro_required")
+
     else:
         status.append("too_long")
 
     return (status, discord_string, total_chars, total_cells)
 
-def convert_to_plaintext(minefield):
+def minefield_to_discordtext(minefield):
     """
-    Generate plaintext representation of the minefield.
+    Generate discord plaintext representation of the minefield.
 
     Parameters:
         minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
 
     Returns:
         status (list): List of status strings regarding length classification
-        plaintext_string (string): Discord formatted string with spoilered plaintext
-        total_chars (int): Total character count of the plaintext_string
+        discordtext_string (string): Discord formatted string with spoilered plaintext
+        total_chars (int): Total character count of the discordtext_string
         total_cells (int): Total number of cells in the minefield
     """
 
-    #print("DEBUG: convert_to_plaintext(minefield) CALLED")
+    #print("DEBUG: minefield_to_discordtext(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
 
     
     status = []
-    plaintext_string = ""
+    discordtext_string = ""
     parts = []
     total_chars = 0
     total_cells = len(minefield) * len(minefield[0])
 
-    # Build the plaintext_string
+    # Build the discordtext_string
     for row in minefield:
         for cell in row:
             part = f"||`{cell}`||"
@@ -171,7 +173,7 @@ def convert_to_plaintext(minefield):
             total_chars += len(part)
         parts.append('\n')
         total_chars += 1
-    plaintext_string = "".join(parts)
+    discordtext_string = "".join(parts)
     
     # Length classification
     if total_chars <= MAX_MESSAGE:
@@ -181,7 +183,7 @@ def convert_to_plaintext(minefield):
     else:
         status.append("too_long")
 
-    return (status, plaintext_string, total_chars, total_cells)
+    return (status, discordtext_string, total_chars, total_cells)
 
 def parse_mbf_hex(hex_string):
     """
@@ -315,8 +317,8 @@ match script_generated:
             print("Error:", e)
 
     case "n" | "no":
-        # Parse manual MBF mode
-        print("Please input your own minefield manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html")
+        # Parse user MBF mode
+        print("Please input your own minefield in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html")
         hex_string = input("> ").strip()
         try:
             width, height, mine_positions = parse_mbf_hex(hex_string)
@@ -342,7 +344,7 @@ output_choice = input("Do you want to copy this to your clipboard as:\nA Discord
 match output_choice:
     case "d" | "discord":
         # Discord emote output to clipboard
-        status, msg, chars, emotes = convert_to_discord(minefield)
+        status, msg, chars, emotes = minefield_to_discordemotes(minefield)
         
         print(f"\nLength {chars}, Emotes {emotes}")
         
@@ -368,7 +370,7 @@ match output_choice:
             print("Discord message not copied due to emote constraint.")
             ptextq = input("Convert to plaintext? (y/n)").strip().lower()
             if ptextq in ("y", "yes"):
-                plaintext = convert_to_plaintext(minefield)
+                plaintext = minefield_to_discordtext(minefield)
                 copy_to_clipboard(plaintext)
             else:
                 copy_to_clipboard(msg)
@@ -376,7 +378,7 @@ match output_choice:
             copy_to_clipboard(msg)
 
     case "t" | "text":
-        plainstatus, plainmsg, plainchars, plaincells = convert_to_plaintext(minefield)
+        plainstatus, plainmsg, plainchars, plaincells = minefield_to_discordtext(minefield)
 
         print(f"\nLength {plainchars}")
         
