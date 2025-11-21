@@ -59,8 +59,8 @@ def generate_random_mine_positions(rows, cols, mine_count):
     all_positions = [(r, c) for r in range(rows) for c in range(cols)]
     return random.sample(all_positions, mine_count)
 
-def print_minefield(board):
-    for row in board:
+def print_minefield(minefield):
+    for row in minefield:
         print(' '.join(str(cell) if cell != 0 else '0' for cell in row))
 
 def convert_to_discord(board):
@@ -127,15 +127,24 @@ def parse_mbf_hex(hex_string):
 
     return width, height, mine_positions
 
-def minefield_to_rbf_hex(board):
-    height = len(board)
-    width = len(board[0])
+def minefield_to_rbf_hex(minefield):
+    """
+    Generate mbf hex string from minefield.
+
+    Parameters:
+        minefield (2D list): Grid with indicative numbers and 'B' where bombs are located
+
+    Returns:
+        mbf_hex (string): mbf hexadecimal string
+    """
+    height = len(minefield)
+    width = len(minefield[0])
 
     # Locate mines
     mine_positions = []
     for r in range(height):
         for c in range(width):
-            if board[r][c] == 'B':
+            if minefield[r][c] == 'B':
                 mine_positions.append((c, r))   # X, Y
 
     mines = len(mine_positions)
@@ -156,7 +165,8 @@ def minefield_to_rbf_hex(board):
         output.append(y)
 
     # Convert to spaced hex string for readability
-    return " ".join(f"{b:02X}" for b in output)
+    mbf_hex = " ".join(f"{b:02X}" for b in output)
+    return mbf_hex
 
 
 # Main script
@@ -175,7 +185,8 @@ if script_generated in ("y", "yes"):
         minecount = int(input('Number of mines: '))
         if minecount < 1 or minecount >= rows * cols:
             raise ValueError('Number of mines must be at least 1 and less than total cells.')
-        minefield = generate_minefield_from_mine_positions(cols, rows, generate_random_mine_positions(rows, cols, minecount))
+        randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
+        minefield = generate_minefield_from_mine_positions(cols, rows, randomized_mine_positions)
 
         print('\nGenerated Minesweeper Board:\n')
 
