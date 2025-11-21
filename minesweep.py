@@ -299,6 +299,130 @@ def copy_to_clipboard(text):
         print("\nCould not copy to clipboard. Please copy manually:\n")
         print(text)
 
+# Solver
+UNKNOWN = -1
+FLAG = -2
+
+def _neighbors(r, c, height, width):
+    for i in range(max(0, r-1), min(height, r+2)):
+        for j in range(max(0, c-1), min(width, c+2)):
+            if not (i == r and j == c):
+                yield i, j
+
+def _reveal_zero_area(minefield, visible, sr, sc):
+    height, width = len(minefield), len(minefield[0])
+    stack = [(sr, sc)]
+    visible[sr][sc] = minefield[sr][sc]
+
+    while stack:
+        r, c = stack.pop()
+
+        if minefield[r][c] == 0:
+            for i, j in _neighbors(r, c, height, width):
+                if visible[i][j] == UNKNOWN:
+                    visible[i][j] = minefield[i][j]
+                    if minefield[i][j] == 0:
+                        stack.append((i, j))
+
+def _logical_mark_mines(minefield, visible):
+    """Mark forced mines."""
+    changed = False
+    height, width = len(minefield), len(minefield[0])
+
+    for r in range(height):
+        for c in range(width):
+            cell = visible[r][c]
+            if cell <= 0:  # NOT a clue number
+                continue
+
+            neigh = list(_neighbors(r, c, height, width))
+            unknown = [(i,j) for (i,j) in neigh if visible[i][j] == UNKNOWN]
+            flagged = [(i,j) for (i,j) in neigh if visible[i][j] == FLAG]
+
+            needed = cell - len(flagged)
+            if needed > 0 and needed == len(unknown):
+                for i,j in unknown:
+                    visible[i][j] = FLAG
+                changed = True
+
+    return changed
+
+def _logical_clear_safes(minefield, visible):
+    """Mark forced safe cells."""
+    changed = False
+    height, width = len(minefield), len(minefield[0])
+
+    for r in range(height):
+        for c in range(width):
+            cell = visible[r][c]
+            if cell <= 0:
+                continue
+
+            neigh = list(_neighbors(r, c, height, width))
+            unknown = [(i,j) for (i,j) in neigh if visible[i][j] == UNKNOWN]
+            flagged = [(i,j) for (i,j) in neigh if visible[i][j] == FLAG]
+
+            if len(flagged) == cell and unknown:
+                for i,j in unknown:
+                    visible[i][j] = minefield[i][j]
+                changed = True
+
+    return changed
+
+def solver_can_solve_logically(minefield):
+    """
+    Return True if the minefield is 100% solvable using pure logical steps.
+    """
+    height = len(minefield)
+    width = len(minefield[0])
+
+    visible = [[UNKNOWN for _ in range(width)] for _ in range(height)]
+
+    # Find ANY zero-cell to start
+    zeroes = [(r,c) for r in range(height) for c in range(width) if minefield[r][c] == 0]
+    if not zeroes:
+        return False  # cannot start safely
+
+    sr, sc = zeroes[0]
+    _reveal_zero_area(minefield, visible, sr, sc)
+
+    # Main logic loop
+    while True:
+        progress = False
+        if _logical_mark_mines(minefield, visible):
+            progress = True
+        if _logical_clear_safes(minefield, visible):
+            progress = True
+
+        # Expand any new zeros discovered
+        for r in range(height):
+            for c in range(width):
+                if visible[r][c] == 0:
+                    _reveal_zero_area(minefield, visible, r, c)
+
+        if not progress:
+            break
+
+    # Check for completion
+    for r in range(height):
+        for c in range(width):
+            if minefield[r][c] != 'B' and visible[r][c] == UNKNOWN:
+                return False
+
+    return True
+
+def generate_logically_solvable_minefield(height, width, minecount):
+        """
+        Keep generating random minefields using your existing generator
+        until one is logically solvable.
+        """
+        while True:
+            positions = generate_random_mine_positions(height, width, minecount)
+            mf = generate_minefield_from_mine_positions(height, width, positions)
+            if solver_can_solve_logically(mf):
+                return mf
+
+# END Solver
 
 # Main script
 
@@ -316,8 +440,12 @@ match script_generated:
             minecount = int(input("Number of mines: "))
             if minecount < 1 or minecount >= rows * cols:
                 raise ValueError("Number of mines must be at least 1 and less than total cells.")
-            randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
-            minefield = generate_minefield_from_mine_positions(rows, cols, randomized_mine_positions)
+            logic = input("Guarantee the board is logically solvable? (y/n): ").strip().lower()
+            if logic in ("y", "yes"):
+                minefield = generate_logically_solvable_minefield(rows, cols, minecount)
+            else:
+                randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
+                minefield = generate_minefield_from_mine_positions(rows, cols, randomized_mine_positions)
 
             print("\nGenerated Minesweeper Minefield:\n")
 
