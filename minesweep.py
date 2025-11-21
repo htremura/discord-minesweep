@@ -370,12 +370,23 @@ match output_choice:
             print("Discord message not copied due to emote constraint.")
             ptextq = input("Convert to plaintext? (y/n)").strip().lower()
             if ptextq in ("y", "yes"):
-                plaintext = minefield_to_discordtext(minefield)
-                copy_to_clipboard(plaintext)
-            else:
-                copy_to_clipboard(msg)
-        else:
-            copy_to_clipboard(msg)
+                plainstatus, plainmsg, plainchars, plaincells = minefield_to_discordtext(minefield)
+
+                print(f"\nLength {plainchars}")
+                
+                if "ok" in plainstatus:
+                    print(f"You can send this on Discord without Nitro ({plainchars} <= {MAX_MESSAGE}).")
+                elif "nitro_required" in plainstatus:
+                    print(f"Message requires Nitro ({plainchars} > {MAX_MESSAGE}).")
+                    nitro = input("Do you have Nitro? (y/n): ").strip().lower()
+                    if nitro in ("y", "yes"):
+                        print(f"You can send this on Discord only because you have Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+                    else:
+                        print(f"You can only send this message with Nitro ({plainchars} <= {MAX_NITRO_MESSAGE}).")
+                elif "too_long" in plainstatus:
+                    print(f"Message too long ({plainchars} > {MAX_NITRO_MESSAGE}). Cannot send even with Nitro.")
+                else:
+                    copy_to_clipboard(msg)
 
     case "t" | "text":
         plainstatus, plainmsg, plainchars, plaincells = minefield_to_discordtext(minefield)
