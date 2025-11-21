@@ -326,7 +326,7 @@ if output_choice in ("d", "discord"):
     
     if "too_many_emotes" in status:
         print("Discord message not copied due to emote constraint.")
-        ptexq = input("Convert to plaintext?").strip().lower()
+        ptexq = input("Convert to plaintext? (y/n)").strip().lower()
         if ptexq in ("y", "yes"):
             plaintext = convert_to_plaintext(minefield)
             try:
