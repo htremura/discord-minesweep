@@ -103,27 +103,27 @@ def convert_to_discord(minefield):
     #print(f"DEBUG: minefield: {minefield}")
     
     status = []
-    discord_string = ''
+    discord_string = ""
     parts = []
     total_chars = 0
     total_cells = len(minefield) * len(minefield[0])
 
     emote_map = {
-        1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:',
-        5: ':five:', 6: ':six:', 7: ':seven:', 8: ':eight:',
-        'B': ':bomb:'
+        1: ":one:", 2: ":two:", 3: ":three:", 4: ":four:",
+        5: ":five:", 6: ":six:", 7: ":seven:", 8: ":eight:",
+        'B': ":bomb:"
     }
     
     # Build the discord_string
     for row in minefield:
         for cell in row:
-            emote = emote_map.get(cell, ':white_large_square:')
-            part = f'||{emote}||'
+            emote = emote_map.get(cell, ":white_large_square:")
+            part = f"||{emote}||"
             parts.append(part)
             total_chars += len(part)
         parts.append('\n')
         total_chars += 1
-    discord_string = ''.join(parts)
+    discord_string = "".join(parts)
     
     # Length classification
     if total_cells > MAX_EMOTES:
@@ -157,7 +157,7 @@ def convert_to_plaintext(minefield):
 
     
     status = []
-    plaintext_string = ''
+    plaintext_string = ""
     parts = []
     total_chars = 0
     total_cells = len(minefield) * len(minefield[0])
@@ -165,12 +165,12 @@ def convert_to_plaintext(minefield):
     # Build the plaintext_string
     for row in minefield:
         for cell in row:
-            part = f'||`{cell}`||'
+            part = f"||`{cell}`||"
             parts.append(part)
             total_chars += len(part)
         parts.append('\n')
         total_chars += 1
-    plaintext_string = ''.join(parts)
+    plaintext_string = "".join(parts)
     
     # Length classification
     if total_chars <= MAX_MESSAGE:
@@ -197,10 +197,10 @@ def parse_mbf_hex(hex_string):
     #print(f"DEBUG: hex_string: {hex_string}")
     
     # remove spaces/newlines
-    cleaned = hex_string.replace(' ', '').replace('\n', '')
+    cleaned = hex_string.replace(' ', "").replace('\n', "")
     
     if len(cleaned) < 8:
-        raise ValueError('Hex string too short to contain MBF header.')
+        raise ValueError("Hex string too short to contain MBF header.")
 
     data = bytes.fromhex(cleaned)
 
@@ -210,7 +210,7 @@ def parse_mbf_hex(hex_string):
 
     expected_len = 4 + mines * 2
     if len(data) != expected_len:
-        raise ValueError(f'Expected {expected_len} bytes for {mines} mines, got {len(data)}.')
+        raise ValueError(f"Expected {expected_len} bytes for {mines} mines, got {len(data)}.")
 
     mine_positions = []
     idx = 4
@@ -283,62 +283,62 @@ def copy_to_clipboard(text):
 
     try:
         pyperclip.copy(text)
-        print('\nText copied to clipboard!\n')
+        print("\nText copied to clipboard!\n")
     except Exception:
-        print('\nCould not copy to clipboard. Please copy manually:\n')
+        print("\nCould not copy to clipboard. Please copy manually:\n")
         print(text)
 
 
 # Main script
 
-script_generated = input('Do you want this script to generate a Minesweeper board? (y/n): ').strip().lower()
+script_generated = input("Do you want this script to generate a Minesweeper board? (y/n): ").strip().lower()
 
-if script_generated in ("y", "yes"):
-    # Generate minefield mode
-    try:
-        cols = int(input('Width / Columns: '))
-        if cols < 1:
-            raise ValueError('Columns must be at least 1.')
-        rows = int(input('Height / Rows: '))
-        if rows < 1:
-            raise ValueError('Rows must be at least 1.')
-        minecount = int(input('Number of mines: '))
-        if minecount < 1 or minecount >= rows * cols:
-            raise ValueError('Number of mines must be at least 1 and less than total cells.')
-        randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
-        minefield = generate_minefield_from_mine_positions(rows, cols, randomized_mine_positions)
+match script_generated:
+    case "y" | "yes":
+        # Generate minefield mode
+        try:
+            cols = int(input("Width / Columns: "))
+            if cols < 1:
+                raise ValueError("Columns must be at least 1.")
+            rows = int(input("Height / Rows: "))
+            if rows < 1:
+                raise ValueError("Rows must be at least 1.")
+            minecount = int(input("Number of mines: "))
+            if minecount < 1 or minecount >= rows * cols:
+                raise ValueError("Number of mines must be at least 1 and less than total cells.")
+            randomized_mine_positions = generate_random_mine_positions(rows, cols, minecount)
+            minefield = generate_minefield_from_mine_positions(rows, cols, randomized_mine_positions)
 
-        print('\nGenerated Minesweeper Minefield:\n')
+            print("\nGenerated Minesweeper Minefield:\n")
 
-    except Exception as e:
-        print('Error:', e)
+        except Exception as e:
+            print("Error:", e)
 
-elif script_generated in ("n", "no"):
-    # Parse manual MBF mode
-    print('Please input your own minefield manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html')
-    hex_string = input("> ").strip()
-    try:
-        width, height, mine_positions = parse_mbf_hex(hex_string)
-        print(f"Width: {width}, Height: {height}, Mines: {len(mine_positions)}")
-        
-        minefield = generate_minefield_from_mbf_hex(hex_string)
-        print("\nParsed Minesweeper Minefield:\n")
-        
-    except Exception as e:
-        print("Error parsing MBF:", e)
+    case "n" | "no":
+        # Parse manual MBF mode
+        print("Please input your own minefield manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html")
+        hex_string = input("> ").strip()
+        try:
+            width, height, mine_positions = parse_mbf_hex(hex_string)
+            print(f"Width: {width}, Height: {height}, Mines: {len(mine_positions)}")
+            
+            minefield = generate_minefield_from_mbf_hex(hex_string)
+            print("\nParsed Minesweeper Minefield:\n")
+            
+        except Exception as e:
+            print("Error parsing MBF:", e)
 
-else:
-    print('Invalid choice. Please enter "y" or "n".')
-    exit(1)
+    case _:
+        print("Invalid choice. Please enter 'y' or 'n'.")
+        exit(1)
 
 print_minefield(minefield)
 
 print("\nGenerated .MBF Hexadecimal Representation:")
 mbf_hex = minefield_to_mbf_hex(minefield)
-print(f'\n{mbf_hex}\n')
+print(f"\n{mbf_hex}\n")
 
-print("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)")
-output_choice = input("> ").strip().lower()
+output_choice = input("Do you want to copy this to your clipboard as:\nA Discord spoilered message using emotes? (d)\nA Discord spoilered message using plaintext? (t)\nA .MBF formatted hexadecimal string? (m)\n> ").strip().lower()
 
 match output_choice:
     case "d" | "discord":
