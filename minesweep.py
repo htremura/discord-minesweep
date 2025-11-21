@@ -6,32 +6,32 @@ MAX_MESSAGE = 2000
 MAX_NITRO_MESSAGE = 4000
 
 
-def generate_minefield_from_mine_positions(rows, cols, mine_positions):
+def generate_minefield_from_mine_positions(height, width, mine_positions):
     """
     Generate a Minesweeper minefield from explicit mine coordinates.
 
     Parameters:
-        rows (int): Number of rows
-        cols (int): Number of columns
-        mine_positions (list of (row, col)): Mine coordinates
+        height (int): Number of rows
+        width (int): Number of columns
+        mine_positions (list of (row, column)): Mine coordinates
 
     Returns:
         minefield (2D list): Numbers and 'B' where bombs are located
     """
 
-    #print(f"DEBUG: generate_minefield_from_mine_positions(rows, cols, mine_positions) CALLED")
-    #print(f"DEBUG: rows: {rows}, cols: {cols}, mine_positions: {mine_positions}")
+    #print(f"DEBUG: generate_minefield_from_mine_positions(height, width, mine_positions) CALLED")
+    #print(f"DEBUG: height: {height}, width: {width}, mine_positions: {mine_positions}")
 
     # Initialize empty minefield
-    minefield = [[0 for _ in range(cols)] for _ in range(rows)]
+    minefield = [[0 for _ in range(width)] for _ in range(height)]
 
     # Place mines
     for r, c in mine_positions:
         minefield[r][c] = 'B'
 
         # Increment adjacent cells
-        for i in range(max(0, r-1), min(rows, r+2)):
-            for j in range(max(0, c-1), min(cols, c+2)):
+        for i in range(max(0, r-1), min(height, r+2)):
+            for j in range(max(0, c-1), min(width, c+2)):
                 if minefield[i][j] != 'B':
                     minefield[i][j] += 1
 
@@ -39,7 +39,7 @@ def generate_minefield_from_mine_positions(rows, cols, mine_positions):
 
 def generate_minefield_from_mbf_hex(mbf_hex):
     """
-    Generate a Minesweeper minefield from provided mbf hex string.
+    Generate a Minesweeper minefield from provided mbf hex string by parsing then passing into generate_minefield_from_mine_positions(height, width, mine_positions).
 
     Parameters:
         mbf_hex (string): mbf hexadecimal string
@@ -54,23 +54,23 @@ def generate_minefield_from_mbf_hex(mbf_hex):
     width, height, mine_positions = parse_mbf_hex(mbf_hex)
     return generate_minefield_from_mine_positions(height, width, mine_positions)
 
-def generate_random_mine_positions(rows, cols, mine_count):
+def generate_random_mine_positions(height, width, mine_count):
     """
     Generate random unique mine positions.
 
     Parameters:
-        rows (int): Number of rows
-        cols (int): Number of columns
+        height (int): Number of rows
+        width (int): Number of columns
         mine_count (int): Number of mines
 
     Returns:
-        mine_positions (list of (row, col)): Random mine coordinates
+        mine_positions (list of (row, column)): Random mine coordinates
     """
 
-    #print(f"DEBUG: generate_random_mine_positions(rows, cols, mine_count) CALLED")
-    #print(f"DEBUG: rows: {rows}, cols: {cols}, mine_count: {mine_count}")
+    #print(f"DEBUG: generate_random_mine_positions(height, width, mine_count) CALLED")
+    #print(f"DEBUG: height: {height}, width: {width}, mine_count: {mine_count}")
 
-    all_positions = [(r, c) for r in range(rows) for c in range(cols)]
+    all_positions = [(r, c) for r in range(height) for c in range(width)]
     return random.sample(all_positions, mine_count)
 
 def print_minefield(minefield):
@@ -102,9 +102,9 @@ def convert_to_discord(minefield):
     #print(f"DEBUG: convert_to_discord(minefield) CALLED")
     #print(f"DEBUG: minefield: {minefield}")
     
-    rows = len(minefield)
-    cols = len(minefield[0])
-    total_cells = rows * cols
+    height = len(minefield)
+    width = len(minefield[0])
+    total_cells = height * width
     discord_string = ''
     total_chars = 0
     status = []
@@ -195,6 +195,8 @@ def parse_mbf_hex(hex_string):
     for _ in range(mines):
         x = data[idx]
         y = data[idx + 1]
+        if x >= width or y >= height:
+            raise ValueError("Mine position outside grid bounds.")
         idx += 2
         # x=column, y=row
         mine_positions.append((y, x))
