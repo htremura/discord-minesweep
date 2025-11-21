@@ -271,8 +271,8 @@ elif script_generated in ("n", "no"):
     print('Please input your own minefield manually in hexadecimal MBF format (WIDTH (1BYTE) HEIGHT (1BYTE) MINES (2BYTES) MINE POSITIONS (2 BYTES EACH X Y))\nYou can use a service like https://www.mzrg.com/js/mine/make_board.html')
     hex_string = input("> ").strip()
     try:
-        width, height, mines = parse_mbf_hex(hex_string)
-        print(f"Width: {width}, Height: {height}, Mines: {len(mines)}")
+        width, height, mine_positions = parse_mbf_hex(hex_string)
+        print(f"Width: {width}, Height: {height}, Mines: {len(mine_positions)}")
         
         minefield = generate_minefield_from_mbf_hex(hex_string)
         print("\nParsed Minesweeper Minefield:\n")
