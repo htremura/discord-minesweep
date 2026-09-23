@@ -6,4 +6,6 @@ Requirements:
 - pyperclip
 
 Run the script with:
+```
 python discord-minesweep.py
+```
