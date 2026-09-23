@@ -7,5 +7,5 @@ Requirements:
 
 Run the script with:
 ```
-python discord-minesweep.py
+python3 discord-minesweep.py
 ```
